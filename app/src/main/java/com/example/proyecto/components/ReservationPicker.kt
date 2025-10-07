@@ -45,6 +45,8 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import androidx.compose.material3.DatePickerDefaults
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -294,11 +296,13 @@ fun DatePickerField(
         initialSelectedDateMillis = initialDateMillis ?: System.currentTimeMillis()
     )
 
-    val selectedDate = Instant.ofEpochMilli(dateState.selectedDateMillis ?: System.currentTimeMillis())
-        .atZone(zone).toLocalDate()
+    val selectedDate = dateState.selectedDateMillis?.let {
+        LocalDateTime.ofInstant(Instant.ofEpochMilli(it), ZoneOffset.UTC).toLocalDate()
+    } ?: LocalDate.now()
     val dateText = "%02d/%02d/%04d".format(selectedDate.dayOfMonth, selectedDate.monthValue, selectedDate.year)
 
-    OutlinedTextField(
+    Box(Modifier.fillMaxWidth()){
+        OutlinedTextField(
         value = dateText,
         onValueChange = {},
         readOnly = true,
@@ -306,8 +310,13 @@ fun DatePickerField(
         trailingIcon = { Icon(Icons.Outlined.CalendarMonth, contentDescription = null) },
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { showDate = true }
     )
+        Box(
+            Modifier
+                .matchParentSize()
+                .clickable { showDate = true }
+        )
+    }
 
     if (showDate) {
         DatePickerDialog(
@@ -345,17 +354,22 @@ fun TimePickerField(
         selectedTime.minute,
         if (selectedTime.hour < 12) "AM" else "PM"
     )
-
-    OutlinedTextField(
-        value = timeText,
-        onValueChange = {},
-        readOnly = true,
-        label = { Text(label) },
-        trailingIcon = { Icon(Icons.Outlined.Schedule, contentDescription = null) },
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { showTime = true }
-    )
+    Box(Modifier.fillMaxWidth()) {
+        OutlinedTextField(
+            value = timeText,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(label) },
+            trailingIcon = { Icon(Icons.Outlined.Schedule, contentDescription = null) },
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+        Box(
+            Modifier
+                .matchParentSize()
+                .clickable { showTime = true }
+        )
+    }
 
     if (showTime) {
         AlertDialog(

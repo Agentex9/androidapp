@@ -5,27 +5,49 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.runtime.collectAsState
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.proyecto.ViewModel.GeneralViewModel
 import com.example.proyecto.components.HostelCard
 import com.example.proyecto.components.ServiceCard
 import com.example.proyecto.components.BottomNavMenu
 import com.example.proyecto.components.hostelService
 import com.example.proyecto.components.myHostel
+import com.example.proyecto.data.ResultState
+import com.example.proyecto.models.Hostel
+import com.example.proyecto.models.HostelServices
 import com.example.proyecto.ui.theme.Gotham
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PreviewReservationScreenLayout() {
+fun PreviewReservationScreenLayout(vm: GeneralViewModel = viewModel()) {
+    val context = LocalContext.current
+
+    // 🔹 Collect the states
+    val hostelListState by vm.hostelListState.collectAsState()
+    val serviceListState by vm.hostelServicesState.collectAsState()
+
+    // 🔹 Fetch data when the screen loads
+    LaunchedEffect(Unit) {
+        vm.fetchHostels()
+        vm.fetchHostelServices()
+    }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -34,17 +56,24 @@ fun PreviewReservationScreenLayout() {
                         "Menú Principal",
                         fontFamily = Gotham,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 22.sp // más pequeño
+                        fontSize = 22.sp
                     )
                 },
+                actions = {
+                    IconButton(onClick = {
+                        vm.fetchHostels()
+                        vm.fetchHostelServices()
+                    }) {
+                        Icon(Icons.Default.Refresh, contentDescription = "Actualizar")
+                    }
+                }
             )
         },
     ) { inner ->
-        // 🔹 Esto asegura que Compose no herede escalado de texto del sistema
         CompositionLocalProvider(
             LocalDensity provides Density(
                 LocalDensity.current.density,
-                fontScale = 1f // Fuerza el tamaño de fuente real
+                fontScale = 1f
             )
         ) {
             Column(
@@ -55,30 +84,42 @@ fun PreviewReservationScreenLayout() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                // 🔹 Sección de Albergues
+                // 🔹 HOSTELS SECTION
                 Text(
                     text = "Albergues disponibles",
                     fontFamily = Gotham,
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = 18.sp, // 🔹 tamaño fijo
+                    fontSize = 18.sp,
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Spacer(Modifier.height(8.dp))
+                when (hostelListState) {
+                    is ResultState.Loading -> CircularProgressIndicator()
+                    is ResultState.Error -> Text(
+                        text = "Error: ${(hostelListState as ResultState.Error).message}",
+                        color = MaterialTheme.colorScheme.error
+                    )
 
-                val hostelList = listOf(
-                    myHostel,
-                    myHostel.copy(id = "hostel_002", name = "Valle Hostel")
-                )
-
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(hostelList) { hostel ->
-                        HostelCard(hostel)
+                    is ResultState.Success<*> -> {
+                        val hostels =
+                            (hostelListState as ResultState.Success<List<Hostel>>).data
+                        if (hostels.isEmpty()) {
+                            Text("No hay albergues disponibles.")
+                        } else {
+                            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                items(hostels) { hostel ->
+                                    HostelCard(hostel)
+                                }
+                            }
+                        }
                     }
+
+                    else -> {}
                 }
 
                 Spacer(Modifier.height(20.dp))
 
-                // 🔹 Sección de Servicios
+                // 🔹 SERVICES SECTION
                 Text(
                     text = "Servicios disponibles",
                     fontFamily = Gotham,
@@ -87,16 +128,28 @@ fun PreviewReservationScreenLayout() {
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Spacer(Modifier.height(8.dp))
+                when (serviceListState) {
+                    is ResultState.Loading -> CircularProgressIndicator()
+                    is ResultState.Error -> Text(
+                        text = "Error: ${(serviceListState as ResultState.Error).message}",
+                        color = MaterialTheme.colorScheme.error
+                    )
 
-                val serviceList = listOf(
-                    hostelService,
-                    hostelService.copy(id = "service_002", service_name = "Laundry")
-                )
-
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(serviceList) { service ->
-                        ServiceCard(service)
+                    is ResultState.Success<*> -> {
+                        val services =
+                            (serviceListState as ResultState.Success<List<HostelServices>>).data
+                        if (services.isEmpty()) {
+                            Text("No hay servicios disponibles.")
+                        } else {
+                            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                items(services) { service ->
+                                    ServiceCard(service)
+                                }
+                            }
+                        }
                     }
+
+                    else -> {}
                 }
             }
         }
@@ -104,7 +157,7 @@ fun PreviewReservationScreenLayout() {
 }
 
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(showBackground = true)
 @Composable
 fun PreviewReservationScreenLayoutPreview() {
     PreviewReservationScreenLayout()

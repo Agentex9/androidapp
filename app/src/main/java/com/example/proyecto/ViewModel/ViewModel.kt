@@ -85,6 +85,14 @@ class GeneralViewModel : ViewModel() {
         _otp.value = otp
     }
 
+    fun setHostelReservationState(){
+        _newHostelReservationState.value = ResultState.Idle
+    }
+    fun setServiceReservationState(){
+        _newServiceReservationState.value = ResultState.Idle
+    }
+
+
     // --------------------
     // API Calls
     // --------------------

@@ -158,6 +158,35 @@ fun App() {
                     )
                 }
 
+                // ------------------ SERVICE RESERVATION ------------------
+                composable(
+                    Screen.ServiceReservation.route,
+                    arguments = listOf(
+                        navArgument("serviceId") {
+                            type = NavType.StringType
+                            nullable = true
+                            defaultValue = null
+                        },
+                        navArgument("hostelId") {
+                            type = NavType.StringType
+                            nullable = true
+                            defaultValue = null
+                        }
+                    )
+                ) { backStackEntry ->
+                    val serviceId = backStackEntry.arguments?.getString("serviceId")
+                    val hostelId = backStackEntry.arguments?.getString("hostelId")
+                    val userId = "1234"
+
+                    ServiceReservationScreen(
+                        preselectedServiceId = serviceId,
+                        preselectedHostelId = hostelId,
+                        userId = userId,
+                        viewModel = generalViewModel,
+                        onBack = { nav.popBackStack() }
+                    )
+                }
+
                 // ------------------ HISTORIAL ------------------
                 composable(Screen.Historial.route) { }
 

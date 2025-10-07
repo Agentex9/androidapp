@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.proyecto.models.NewHostelReservation
+import java.time.LocalDate
 
 // -------------------- MAIN FORM --------------------
 @Composable
@@ -30,7 +31,7 @@ fun ReservationForm(
     var womenCount by remember { mutableStateOf(0) }
     val totalCount = menCount + womenCount
 
-    var arrivalDate by remember { mutableStateOf("") }
+    var arrivalDate by remember { mutableStateOf<LocalDate?>(null) }
 
     Column(
         modifier = Modifier
@@ -53,7 +54,6 @@ fun ReservationForm(
             womenCount = womenCount,
             onMenChange = { menCount = it },
             onWomenChange = { womenCount = it },
-            arrivalDate = arrivalDate,
             onDateChange = { arrivalDate = it },
             totalCount = totalCount
         )
@@ -123,8 +123,7 @@ fun ReservationDetails(
     womenCount: Int,
     onMenChange: (Int) -> Unit,
     onWomenChange: (Int) -> Unit,
-    arrivalDate: String,
-    onDateChange: (String) -> Unit,
+    onDateChange: (LocalDate) -> Unit,
     totalCount: Int
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -178,13 +177,7 @@ fun ReservationDetails(
         // Total
         Text("Total People: $totalCount")
 
-        // ReservationPicker for date/time
-        ReservationPicker(
-            onConfirm = { date, time ->
-                val formatted = "${date}T${time}"
-                onDateChange(formatted)
-            }
-        )
+        DatePickerField("Fecha de llegada", onDateSelected = {onDateChange(it)})
     }
 }
 
@@ -194,7 +187,7 @@ fun ReservationDetails(
 fun SubmitReservationButton(
     selectedHostel: String,
     reservationType: String,
-    arrivalDate: String,
+    arrivalDate: LocalDate?,
     menCount: Int,
     womenCount: Int,
     hostelIdMap: Map<String, String>,
@@ -202,11 +195,15 @@ fun SubmitReservationButton(
     onSubmit: (NewHostelReservation) -> Unit
 ) {
     val hostelId = hostelIdMap[selectedHostel] ?: ""
+    val formattedDate = arrivalDate?.let {
+        "%04d-%02d-%02d".format(it.year, it.monthValue, it.dayOfMonth)
+    } ?: ""
+
 
     Button(
         onClick = {
             val request = NewHostelReservation(
-                arrival_date = arrivalDate,
+                arrival_date = formattedDate,
                 hostel = hostelId,
                 men_quantity = menCount,
                 type = reservationType,
@@ -245,24 +242,7 @@ fun CounterField(label: String, value: Int, onIncrement: () -> Unit, onDecrement
 
 // -------------------- PREVIEWS --------------------
 
-/*
-@Preview(showBackground = true)
-@Composable
-fun ReservationFormPreview_Empty() {
-    ReservationForm(
-        hostels = listOf("Hostel A", "Hostel B", "Hostel C")
-    )
-}
 
-@Preview(showBackground = true)
-@Composable
-fun ReservationFormPreview_Prefilled() {
-    ReservationForm(
-        hostels = listOf("Hostel A", "Hostel B", "Hostel C"),
-        preselectedHostel = "Hostel B"
-    )
-}
-*/
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
@@ -280,7 +260,6 @@ fun ReservationFormPreview() {
         hostelIdMap = mockHostelIdMap,
         userId = "12345",
         onSubmitReservation = { reservation ->
-            // For preview we can just print/log
             println("Preview Reservation Submitted: $reservation")
         }
     )

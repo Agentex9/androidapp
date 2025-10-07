@@ -10,22 +10,20 @@ sealed class Screen(val route: String) {
     data object Register : Screen("Register")
     data object Menu : Screen("Menu")
 
-
-    // HostelReservation screen with hostelId placeholder
     data object HostelReservation : Screen("HostelReservation?hostelId={hostelId}") {
         fun createRoute(hostelId: String? = null): String {
             return if (hostelId != null) {
                 "HostelReservation?hostelId=$hostelId"
             } else {
-                "HostelReservation" // no id
+                "HostelReservation"
             }
         }
     }
 
     data object ServiceReservation : Screen("ServiceReservation?serviceId={serviceId}") {
-        fun createRoute(serviceId: String? = null): String {
-            return if (serviceId != null) {
-                "ServiceReservation?serviceId=$serviceId"
+        fun createRoute(serviceId: String? = null, hostelId: String? = null): String {
+            return if (serviceId != null && hostelId != null) {
+                "ServiceReservation?serviceId=$serviceId&hostelId=$hostelId"
             } else {
                 "ServiceReservation" // no id
             }
