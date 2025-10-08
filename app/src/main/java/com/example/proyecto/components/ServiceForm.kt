@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.example.proyecto.models.HServicesScheduleData
 import com.example.proyecto.models.HostelServices
 import com.example.proyecto.models.NewServiceReservation
+import java.time.LocalDate
 
 // -------------------- MAIN FORM --------------------
 @Composable
@@ -41,7 +42,7 @@ fun ServiceReservationForm(
     var womenCount by remember { mutableStateOf(0) }
     val totalCount = menCount + womenCount
 
-    var datetimeReserved by remember { mutableStateOf("") }
+    var datetimeReserved by remember { mutableStateOf<LocalDate?>(null) }
 
     Column(
         modifier = Modifier
@@ -82,7 +83,6 @@ fun ServiceReservationForm(
             womenCount = womenCount,
             onMenChange = { menCount = it },
             onWomenChange = { womenCount = it },
-            arrivalDate = datetimeReserved,
             onDateChange = { datetimeReserved = it },
             totalCount = totalCount
         )
@@ -146,17 +146,21 @@ fun ServiceSelector(
 fun SubmitServiceReservationButton(
     selectedService: HostelServices?,
     reservationType: String,
-    datetimeReserved: String,
+    datetimeReserved: LocalDate?,
     menCount: Int,
     womenCount: Int,
     userId: String,
     onSubmit: (NewServiceReservation) -> Unit
 ) {
+    val formattedDate = datetimeReserved?.let {
+        "%04d-%02d-%02d".format(it.year, it.monthValue, it.dayOfMonth)
+    } ?: ""
     Button(
+
         onClick = {
             selectedService?.let {
                 val request = NewServiceReservation(
-                    datetime_reserved = datetimeReserved,
+                    datetime_reserved = formattedDate,
                     men_quantity = menCount,
                     service = it.id,
                     type = reservationType,
@@ -166,7 +170,7 @@ fun SubmitServiceReservationButton(
                 onSubmit(request)
             }
         },
-        enabled = selectedService != null && datetimeReserved.isNotEmpty(),
+        enabled = selectedService != null && formattedDate.isNotEmpty(),
         modifier = Modifier.fillMaxWidth()
     ) {
         Text("Submit Service Reservation")
