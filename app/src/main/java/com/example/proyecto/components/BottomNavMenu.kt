@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import com.example.proyecto.Navigation.Screen
 import com.example.proyecto.R
 import com.example.proyecto.ui.theme.ProyectoTheme // Asegúrate de importar tu tema
 
@@ -35,10 +36,10 @@ fun BottomNavMenu(
     onRouteSelected: (String) -> Unit // <-- CAMBIO 2: Recibe una función para notificar clics
 ) {
     val items = listOf(
-        NavItem("Albergues", Icons.Filled.Home, "albergues"),
-        NavItem("Reservas", Icons.Filled.DateRange, "reservas"),
-        NavItem("Historial", Icons.Filled.History, "historial"),
-        NavItem("Mi Cuenta", Icons.Filled.Person, "cuenta")
+        NavItem("Albergues", Icons.Filled.Home, Screen.Menu.route),
+        NavItem("Reservas", Icons.Filled.DateRange, Screen.Reservation.route),
+        NavItem("Historial", Icons.Filled.History, Screen.Historial.route),
+        NavItem("Mi Cuenta", Icons.Filled.Person, Screen.Profile.route)
     )
 
     NavigationBar(containerColor = Color.White) {
@@ -71,7 +72,7 @@ fun BottomNavMenu(
 fun BottomNavMenuAlberguesPreview() {
     ProyectoTheme {
         BottomNavMenu(
-            currentRoute = "albergues",
+            currentRoute = "Reservation",
             onRouteSelected = {} // No hace nada en la preview
         )
     }
@@ -82,7 +83,7 @@ fun BottomNavMenuAlberguesPreview() {
 fun BottomNavMenuHistorialPreview() {
     ProyectoTheme {
         BottomNavMenu(
-            currentRoute = "historial",
+            currentRoute = "Historial",
             onRouteSelected = { /* No hace nada en la preview */ }
         )
     }
