@@ -17,9 +17,9 @@ import java.time.LocalDate
 // -------------------- MAIN FORM --------------------
 @Composable
 fun ReservationForm(
-    hostels: List<String>,
+    hostels: List<String>?,
     preselectedHostel: String? = null,
-    hostelIdMap: Map<String, String> = emptyMap(),
+    hostelIdMap: Map<String, String>? = emptyMap(),
     userId: String,
     onSubmitReservation: (NewHostelReservation) -> Unit
 ) {
@@ -75,7 +75,7 @@ fun ReservationForm(
 // -------------------- COMPONENT 1 --------------------
 @Composable
 fun HostelSelector(
-    hostels: List<String>,
+    hostels: List<String>?,
     selectedHostel: String,
     expanded: Boolean,
     onExpandChange: (Boolean) -> Unit,
@@ -100,7 +100,7 @@ fun HostelSelector(
                 expanded = expanded,
                 onDismissRequest = { onExpandChange(false) }
             ) {
-                hostels.forEach { hostel ->
+                hostels?.forEach { hostel ->
                     DropdownMenuItem(
                         text = { Text(hostel) },
                         onClick = {
@@ -190,11 +190,11 @@ fun SubmitReservationButton(
     arrivalDate: LocalDate?,
     menCount: Int,
     womenCount: Int,
-    hostelIdMap: Map<String, String>,
+    hostelIdMap: Map<String, String>?,
     userId: String,
     onSubmit: (NewHostelReservation) -> Unit
 ) {
-    val hostelId = hostelIdMap[selectedHostel] ?: ""
+    val hostelId = hostelIdMap?.get(selectedHostel) ?: ""
     val formattedDate = arrivalDate?.let {
         "%04d-%02d-%02d".format(it.year, it.monthValue, it.dayOfMonth)
     } ?: ""
@@ -212,7 +212,9 @@ fun SubmitReservationButton(
             )
             onSubmit(request)  // ✅ pass back up
         },
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        enabled = selectedHostel.isNotEmpty() && arrivalDate != null && (menCount + womenCount) > 0
+                && (reservationType != "individual" || (menCount + womenCount) == 1)
     ) {
         Text("Submit Reservation")
     }

@@ -2,7 +2,7 @@ package com.example.proyecto.models
 
 data class Hostel(
     val available_capacity: AvailableCapacity,
-    val coordinates: List<Int>,
+    val coordinates: List<Float>,
     val created_at: String,
     val created_by_name: String,
     val current_capacity: Int,

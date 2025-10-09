@@ -27,12 +27,14 @@ import com.example.proyecto.components.HostelCard
 import com.example.proyecto.components.ServiceCard
 import com.example.proyecto.data.ResultState
 import com.example.proyecto.models.Hostel
+import com.example.proyecto.models.HostelList
 import com.example.proyecto.models.HostelServices
+import com.example.proyecto.models.HostelServicesList
 import com.example.proyecto.ui.theme.Gotham
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PreviewReservationScreenLayout(vm: GeneralViewModel = viewModel()) {
+fun PreviewReservationScreenLayout(vm: GeneralViewModel = viewModel(),onClick: (String) -> Unit) {
     val context = LocalContext.current
 
     // 🔹 Collect the states
@@ -66,7 +68,7 @@ fun PreviewReservationScreenLayout(vm: GeneralViewModel = viewModel()) {
                 }
             )
         },
-    ) { inner ->
+    ) { innerPadding ->
         CompositionLocalProvider(
             LocalDensity provides Density(
                 LocalDensity.current.density,
@@ -76,7 +78,7 @@ fun PreviewReservationScreenLayout(vm: GeneralViewModel = viewModel()) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(inner)
+                    .padding(innerPadding)
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -99,13 +101,13 @@ fun PreviewReservationScreenLayout(vm: GeneralViewModel = viewModel()) {
 
                     is ResultState.Success<*> -> {
                         val hostels =
-                            (hostelListState as ResultState.Success<List<Hostel>>).data
-                        if (hostels.isEmpty()) {
+                            (hostelListState as ResultState.Success<HostelList>).data.results
+                        if (hostels.isNullOrEmpty()) {
                             Text("No hay albergues disponibles.")
                         } else {
                             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 items(hostels) { hostel ->
-                                    HostelCard(hostel)
+                                    HostelCard(hostel, onClick)
                                 }
                             }
                         }
@@ -134,8 +136,8 @@ fun PreviewReservationScreenLayout(vm: GeneralViewModel = viewModel()) {
 
                     is ResultState.Success<*> -> {
                         val services =
-                            (serviceListState as ResultState.Success<List<HostelServices>>).data
-                        if (services.isEmpty()) {
+                            (serviceListState as ResultState.Success<HostelServicesList>).data.results
+                        if (services.isNullOrEmpty()) {
                             Text("No hay servicios disponibles.")
                         } else {
                             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -157,6 +159,6 @@ fun PreviewReservationScreenLayout(vm: GeneralViewModel = viewModel()) {
 @Preview(showBackground = true)
 @Composable
 fun PreviewReservationScreenLayoutPreview() {
-    PreviewReservationScreenLayout()
+    //PreviewReservationScreenLayout()
 }
 

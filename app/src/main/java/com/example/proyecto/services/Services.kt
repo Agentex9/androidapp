@@ -87,6 +87,8 @@ interface Services {
 
                 if (noAuthHeader == "false") {
                     val token = com.example.proyecto.models.MyApp.tokenManager.getToken()
+                    // uncomment and add your default token if needed for testing
+                    // requestBuilder.addHeader("Authorization", "Token your_default_token_here")
                     if (token != null) {
                         requestBuilder.addHeader("Authorization", "Token $token")
                     }

@@ -52,11 +52,11 @@ fun ReservationScreen(
                     }
                 )
             }
-        ) { inner ->
+        ) { innerPadding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(inner)
+                    .padding(innerPadding)
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {

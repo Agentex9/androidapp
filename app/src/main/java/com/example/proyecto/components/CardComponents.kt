@@ -1,6 +1,7 @@
 package com.example.proyecto.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -59,7 +60,7 @@ val hostelService = HostelServices(
 
 // -------------------- Tarjeta de Albergue --------------------
 @Composable
-fun HostelCard(hostel: Hostel) {
+fun HostelCard(hostel: Hostel,onClick: (String) -> Unit) {
     // 🔹 Fijar tamaño de fuente sin escalar por accesibilidad
     CompositionLocalProvider(
         LocalDensity provides object : Density by LocalDensity.current {
@@ -82,7 +83,8 @@ fun HostelCard(hostel: Hostel) {
         Card(
             modifier = Modifier
                 .padding(6.dp)
-                .wrapContentSize(),
+                .wrapContentSize()
+                .clickable { onClick(hostel.id) },
             shape = RoundedCornerShape(10.dp),
             elevation = CardDefaults.cardElevation(2.dp)
         ) {

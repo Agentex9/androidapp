@@ -3,7 +3,7 @@ package com.example.proyecto.models
 data class Location(
     val address: String,
     val city: String,
-    val coordinates: List<Int>,
+    val coordinates: List<Float>,
     val country: String,
     val created_at: String,
     val formatted_address: String,

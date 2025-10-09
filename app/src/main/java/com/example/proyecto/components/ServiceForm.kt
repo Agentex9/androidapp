@@ -4,11 +4,9 @@ package com.example.proyecto.components
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -16,15 +14,20 @@ import com.example.proyecto.models.HServicesScheduleData
 import com.example.proyecto.models.HostelServices
 import com.example.proyecto.models.NewServiceReservation
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 // -------------------- MAIN FORM --------------------
 @Composable
 fun ServiceReservationForm(
-    hostels: List<String>,
-    services: List<HostelServices>,
+    hostels: List<String>?,
+    services: List<HostelServices>?,
     preselectedHostel: String? = null,
     preselectedService: HostelServices? = null,
-    hostelIdMap: Map<String, String> = emptyMap(),
+    hostelIdMap: Map<String, String>? = emptyMap(),
     userId: String,
     onSubmitReservation: (NewServiceReservation) -> Unit
 ) {
@@ -32,7 +35,7 @@ fun ServiceReservationForm(
     var hostelExpanded by remember { mutableStateOf(false) }
 
     // Filtered list of services for the selected hostel
-    val filteredServices = services.filter { it.hostel_name == selectedHostel }
+    val filteredServices = services?.filter { it.hostel_name == selectedHostel }
 
     var selectedService by remember { mutableStateOf(preselectedService?.service_name ?: "") }
     var serviceExpanded by remember { mutableStateOf(false) }
@@ -43,6 +46,19 @@ fun ServiceReservationForm(
     val totalCount = menCount + womenCount
 
     var datetimeReserved by remember { mutableStateOf<LocalDate?>(null) }
+    var selectedTime by remember { mutableStateOf(LocalTime.now()) }
+
+    val isoString: String by remember(datetimeReserved, selectedTime) {
+        derivedStateOf {
+            datetimeReserved?.let { date ->
+                LocalDateTime.of(date, selectedTime)
+                    .atZone(ZoneId.systemDefault())
+                    .withZoneSameInstant(ZoneOffset.UTC)
+                    .format(DateTimeFormatter.ISO_INSTANT)
+            } ?: ""
+        }
+    }
+
 
     Column(
         modifier = Modifier
@@ -68,7 +84,7 @@ fun ServiceReservationForm(
 
         // Service Selector (only enabled if hostel is chosen)
         ServiceSelector(
-            services = filteredServices.map { it.service_name },
+            services = filteredServices?.map { it.service_name },
             selectedService = selectedService,
             expanded = serviceExpanded,
             onExpandChange = { serviceExpanded = it },
@@ -87,10 +103,15 @@ fun ServiceReservationForm(
             totalCount = totalCount
         )
 
+        TimePickerField(initialHour = selectedTime.hour,
+            initialMinute = selectedTime.minute,
+            label = "Seleccionar Hora",
+            onTimeSelected = { selectedTime = it })
+
         SubmitServiceReservationButton(
-            selectedService = services.firstOrNull { it.service_name == selectedService },
+            selectedService = services?.firstOrNull { it.service_name == selectedService },
             reservationType = reservationType,
-            datetimeReserved = datetimeReserved,
+            datetimeReserved = isoString,
             menCount = menCount,
             womenCount = womenCount,
             userId = userId,
@@ -102,7 +123,7 @@ fun ServiceReservationForm(
 // -------------------- COMPONENT: Service Selector --------------------
 @Composable
 fun ServiceSelector(
-    services: List<String>,
+    services: List<String>?,
     selectedService: String,
     expanded: Boolean,
     onExpandChange: (Boolean) -> Unit,
@@ -127,7 +148,7 @@ fun ServiceSelector(
                 expanded = expanded,
                 onDismissRequest = { onExpandChange(false) }
             ) {
-                services.forEach { service ->
+                services?.forEach { service ->
                     DropdownMenuItem(
                         text = { Text(service) },
                         onClick = {
@@ -146,21 +167,19 @@ fun ServiceSelector(
 fun SubmitServiceReservationButton(
     selectedService: HostelServices?,
     reservationType: String,
-    datetimeReserved: LocalDate?,
+    datetimeReserved: String,
     menCount: Int,
     womenCount: Int,
     userId: String,
     onSubmit: (NewServiceReservation) -> Unit
 ) {
-    val formattedDate = datetimeReserved?.let {
-        "%04d-%02d-%02d".format(it.year, it.monthValue, it.dayOfMonth)
-    } ?: ""
+
     Button(
 
         onClick = {
             selectedService?.let {
                 val request = NewServiceReservation(
-                    datetime_reserved = formattedDate,
+                    datetime_reserved = datetimeReserved,
                     men_quantity = menCount,
                     service = it.id,
                     type = reservationType,
@@ -170,7 +189,8 @@ fun SubmitServiceReservationButton(
                 onSubmit(request)
             }
         },
-        enabled = selectedService != null && formattedDate.isNotEmpty(),
+        enabled = selectedService != null && datetimeReserved.isNotBlank() && (menCount + womenCount) > 0
+                && (reservationType != "individual" || (menCount + womenCount) == 1),
         modifier = Modifier.fillMaxWidth()
     ) {
         Text("Submit Service Reservation")
