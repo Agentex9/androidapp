@@ -154,7 +154,8 @@ fun App() {
                     HReservationScreen(
                         preselectedHostelId = hostelId,
                         userId = userId,
-                        viewModel = generalViewModel
+                        viewModel = generalViewModel,
+                        onBack = { nav.popBackStack() }
                     )
                 }
 

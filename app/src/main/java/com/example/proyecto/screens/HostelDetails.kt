@@ -37,7 +37,7 @@ fun HostelDetailScreen(
     val hostel: Hostel? = when (hostelListState) {
         is ResultState.Success -> {
             val hostelList = (hostelListState as ResultState.Success<HostelList>).data
-            hostelList.hostels.find { it.id == hostelId }
+            hostelList.results?.find { it.id == hostelId }
         }
         else -> null
     }
@@ -84,12 +84,12 @@ fun HostelDetailScreen(
                             Text("Women capacity: ${hostel.current_women_capacity}/${hostel.women_capacity}")
                             Spacer(Modifier.height(8.dp))
                             Text("Location:")
-                            Text("Address: ${hostel.location.address}")
-                            Text("City: ${hostel.location.city}")
-                            Text("State: ${hostel.location.state}")
-                            Text("Country: ${hostel.location.country}")
-                            Text("Zip: ${hostel.location.zip_code}")
-                            Text("Landmarks: ${hostel.location.landmarks}")
+                            Text("Address: ${hostel.location_data.address}")
+                            Text("City: ${hostel.location_data.city}")
+                            Text("State: ${hostel.location_data.state}")
+                            Text("Country: ${hostel.location_data.country}")
+                            Text("Zip: ${hostel.location_data.zip_code}")
+                            Text("Landmarks: ${hostel.location_data.landmarks}")
                         }
                     }
                 }

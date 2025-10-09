@@ -55,28 +55,7 @@ val hostelService = HostelServices(
     updated_at = "2025-09-30T16:45:00Z"
 )
 
-val myHostel = Hostel(
-    created_at = "2025-09-30T16:00:00Z",
-    id = "hostel_001",
-    is_active = true,
-    location = Location(
-        address = "Av. Universidad 123",
-        city = "Monterrey",
-        country = "Mexico",
-        id = "loc_001",
-        landmarks = "Near Macroplaza",
-        latitude = 25,
-        longitude = -100,
-        state = "Nuevo León",
-        zip_code = "64000"
-    ),
-    men_capacity = 50,
-    name = "Montaña Hostel",
-    phone = "+52 81 1234 5678",
-    women_capacity = 40,
-    current_men_capacity = 10,
-    current_women_capacity = 10
-)
+
 
 // -------------------- Tarjeta de Albergue --------------------
 @Composable
@@ -128,7 +107,7 @@ fun HostelCard(hostel: Hostel) {
                     )
                 }
 
-                Text("${hostel.location.city}, ${hostel.location.state}", fontSize = 12.sp)
+                Text("${hostel.location_data.city}, ${hostel.location_data.state}", fontSize = 12.sp)
                 Text("Tel: ${hostel.phone}", fontSize = 12.sp)
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -150,12 +129,12 @@ fun HostelCard(hostel: Hostel) {
         }
     }
 }
-
+/*
 @Preview(showBackground = true)
 @Composable
 fun PreviewHostelCard() {
     HostelCard(hostel = myHostel)
-}
+}*/
 
 // -------------------- Tarjeta de Servicio --------------------
 @Composable

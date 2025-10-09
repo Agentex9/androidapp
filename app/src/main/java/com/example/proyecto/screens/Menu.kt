@@ -25,9 +25,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proyecto.ViewModel.GeneralViewModel
 import com.example.proyecto.components.HostelCard
 import com.example.proyecto.components.ServiceCard
-import com.example.proyecto.components.BottomNavMenu
-import com.example.proyecto.components.hostelService
-import com.example.proyecto.components.myHostel
 import com.example.proyecto.data.ResultState
 import com.example.proyecto.models.Hostel
 import com.example.proyecto.models.HostelServices
