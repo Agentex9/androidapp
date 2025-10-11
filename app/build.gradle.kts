@@ -63,6 +63,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.ui.unit)
     implementation(libs.ads.mobile.sdk)
+    implementation(libs.play.services.location)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -111,5 +112,10 @@ dependencies {
     implementation(libs.androidx.material3.v130)
     implementation(libs.ui.tooling.preview)
     debugImplementation(libs.ui.tooling)
+
+    //Google Maps
+    implementation("com.google.android.gms:play-services-maps:19.2.0")
+    implementation("com.google.maps.android:maps-compose:6.12.1") // for Jetpack Compose
+
 
 }

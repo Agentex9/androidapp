@@ -12,6 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -31,6 +33,21 @@ import com.example.proyecto.models.HostelList
 import com.example.proyecto.models.HostelServices
 import com.example.proyecto.models.HostelServicesList
 import com.example.proyecto.ui.theme.Gotham
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -82,7 +99,6 @@ fun PreviewReservationScreenLayout(vm: GeneralViewModel = viewModel(),onClick: (
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
                 // 🔹 HOSTELS SECTION
                 Text(
                     text = "Albergues disponibles",
@@ -150,11 +166,13 @@ fun PreviewReservationScreenLayout(vm: GeneralViewModel = viewModel(),onClick: (
 
                     else -> {}
                 }
+                Spacer(Modifier.height(24.dp))
+
+                // Map Section
             }
         }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable
