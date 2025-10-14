@@ -54,7 +54,7 @@ fun HostelDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(hostel?.name ?: "Detalles del Albergue") },
+                title = { Text("Detalles del Albergue") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
@@ -100,7 +100,6 @@ fun HostelDetailScreen(
                                     fontFamily = Gotham,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 22.sp,
-                                    color = Color.Black
                                 )
 
                                 val statusColor = if (hostel.is_active) Color(0xFF2E7D32) else Color(0xFFD32F2F)
