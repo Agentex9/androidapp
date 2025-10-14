@@ -51,7 +51,7 @@ import androidx.core.content.ContextCompat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PreviewReservationScreenLayout(vm: GeneralViewModel = viewModel(),onClick: (String) -> Unit) {
+fun PreviewReservationScreenLayout(vm: GeneralViewModel = viewModel(),onClick: (String) -> Unit, onClick2: (String) -> Unit) {
     val context = LocalContext.current
 
     // 🔹 Collect the states
@@ -158,7 +158,7 @@ fun PreviewReservationScreenLayout(vm: GeneralViewModel = viewModel(),onClick: (
                         } else {
                             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 items(services) { service ->
-                                    ServiceCard(service)
+                                    ServiceCard(service, onClick2)
                                 }
                             }
                         }

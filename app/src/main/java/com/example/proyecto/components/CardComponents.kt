@@ -60,152 +60,212 @@ val hostelService = HostelServices(
 
 // -------------------- Tarjeta de Albergue --------------------
 @Composable
-fun HostelCard(hostel: Hostel,onClick: (String) -> Unit) {
-    // 🔹 Fijar tamaño de fuente sin escalar por accesibilidad
+fun HostelCard(hostel: Hostel, onClick: (String) -> Unit) {
+    // Fix font scaling for consistency
     CompositionLocalProvider(
         LocalDensity provides object : Density by LocalDensity.current {
-            override val fontScale: Float
-                get() = 1f
+            override val fontScale: Float get() = 1f
         }
     ) {
-        val totalCapacity = hostel.men_capacity + hostel.women_capacity
-        val freeCapacity =
-            (totalCapacity - hostel.current_men_capacity - hostel.current_women_capacity).coerceAtLeast(0)
-        val freePercentage =
-            if (totalCapacity > 0) freeCapacity.toFloat() / totalCapacity else 0f
+        val totalCapacity = hostel.total_capacity
+        val currentCapacity = hostel.current_capacity
+        val occupancyRatio = if (totalCapacity > 0) currentCapacity.toFloat() / totalCapacity else 0f
 
-        val indicatorColor = when {
-            freeCapacity == 0 -> Color.Red
-            freePercentage > 0.2 -> Color.Green
-            else -> Color.Yellow
+        // 🎨 Custom colors
+        val pantone302 = Color(0xFF003B5C)     // Deep blue
+        val pantone1575 = Color(0xFFFF7F32)    // Orange
+        val wineRed = Color(0xFF8B0000)        // Deep wine red
+
+        val occupancyColor = when {
+            occupancyRatio >= 1f -> wineRed
+            occupancyRatio >= 0.8f -> pantone1575
+            else -> pantone302
         }
 
         Card(
             modifier = Modifier
-                .padding(6.dp)
-                .wrapContentSize()
+                .padding(8.dp)
+                .fillMaxWidth()
                 .clickable { onClick(hostel.id) },
-            shape = RoundedCornerShape(10.dp),
-            elevation = CardDefaults.cardElevation(2.dp)
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             Column(
                 modifier = Modifier
-                    .padding(8.dp)
-                    .wrapContentSize()
+                    .padding(16.dp)
+                    .fillMaxWidth()
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = hostel.name,
-                        fontFamily = Gotham,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 16.sp
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Box(
-                        modifier = Modifier
-                            .size(12.dp)
-                            .clip(CircleShape)
-                            .background(indicatorColor)
-                    )
-                }
-
-                Text("${hostel.location_data.city}, ${hostel.location_data.state}", fontSize = 12.sp)
-                Text("Tel: ${hostel.phone}", fontSize = 12.sp)
+                // Hostel name
+                Text(
+                    text = hostel.name,
+                    fontFamily = Gotham,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    color = Color.Black
+                )
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                Row {
-                    Text(
-                        "Hombres: ${hostel.men_capacity - hostel.current_men_capacity}",
-                        fontSize = 12.sp
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        "Mujeres: ${hostel.women_capacity - hostel.current_women_capacity}",
-                        fontSize = 12.sp
+                // Phone number
+                Text(
+                    text = "Tel: ${hostel.phone}",
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Occupancy bar
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(16.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color(0xFFD1E0D7)) // pantone_621 (light gray background)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(occupancyRatio.coerceIn(0f, 1f))
+                            .fillMaxHeight()
+                            .background(occupancyColor)
                     )
                 }
 
-                Text("Total: $freeCapacity (Total: $totalCapacity)", fontSize = 12.sp)
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Occupancy text
+                Text(
+                    text = "Ocupación: $currentCapacity / $totalCapacity",
+                    fontSize = 13.sp,
+                    color = occupancyColor,
+                    fontWeight = FontWeight.Medium
+                )
             }
         }
     }
 }
-/*
+
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewHostelCard() {
-    HostelCard(hostel = myHostel)
-}*/
+    HostelCard(sampleHostel, onClick = {})
+}
 
 // -------------------- Tarjeta de Servicio --------------------
 @Composable
-fun ServiceCard(service: HostelServices) {
+fun ServiceCard(service: HostelServices, onClick: (String) -> Unit) {
+    // Fix font scaling
     CompositionLocalProvider(
         LocalDensity provides object : Density by LocalDensity.current {
-            override val fontScale: Float
-                get() = 1f
+            override val fontScale: Float get() = 1f
         }
     ) {
-        val statusColor = if (service.is_active) Color.Green else Color.Red
+        val statusColor = if (service.is_active) Color(0xFF003B5C) else Color(0xFF8B0000) // active=blue, inactive=wine red
 
         Card(
             modifier = Modifier
-                .padding(4.dp)
-                .wrapContentSize(),
-            shape = RoundedCornerShape(10.dp),
-            elevation = CardDefaults.cardElevation(2.dp)
+                .padding(8.dp)
+                .fillMaxWidth()
+                .clickable { onClick(service.id) },
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
-            Column(
-                modifier = Modifier
-                    .padding(6.dp)
-                    .wrapContentSize()
-            ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                // Service Name + Status dot
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        service.service_name,
+                        text = service.service_name,
                         fontFamily = Gotham,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 16.sp
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        color = Color.Black
                     )
-                    Spacer(modifier = Modifier.width(6.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
                     Box(
                         modifier = Modifier
-                            .size(10.dp)
+                            .size(12.dp)
                             .clip(CircleShape)
                             .background(statusColor)
                     )
                 }
 
-                Spacer(modifier = Modifier.height(3.dp))
+                Spacer(modifier = Modifier.height(6.dp))
 
-                Text(service.service_description, fontSize = 12.sp)
-                Text("Albergue: ${service.hostel_name}", fontSize = 12.sp)
+                // Hostel name
                 Text(
-                    "Requiere aprobación: ${if (service.service_needs_approval) "Sí" else "No"}",
-                    fontSize = 12.sp
+                    text = "Albergue: ${service.hostel_name}",
+                    fontSize = 14.sp,
+                    color = Color.Gray
                 )
 
-                Row {
-                    Text("Precio: ${service.service_price}", fontSize = 12.sp)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Duración: ${service.service_max_time} min", fontSize = 12.sp)
-                }
+                // Requires approval
+                Text(
+                    text = "Requiere aprobación: ${if (service.service_needs_approval) "Sí" else "No"}",
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
 
-                Text("Horario: ${service.schedule}", fontSize = 12.sp)
+                // Price
+                Text(
+                    text = "Precio: ${service.service_price}",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.Black
+                )
             }
         }
     }
 }
 
-fun CompositionLocalProvider(
-    value: ProvidedValue<Density> ,
-    content: () -> Unit
-) {
-}
+
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewServiceCard() {
-    ServiceCard(service = hostelService)
+    ServiceCard(service = hostelService, onClick = {})
 }
+
+val sampleHostel = Hostel(
+    available_capacity = AvailableCapacity(
+        additionalProp1 = "10 beds available",
+        additionalProp2 = "5 for men",
+        additionalProp3 = "5 for women"
+    ),
+    coordinates = listOf(25.6866f, -100.3161f), // Monterrey example coords
+    created_at = "2025-10-13T10:30:00Z",
+    created_by_name = "Admin User",
+    current_capacity = 0,
+    current_men_capacity = 0,
+    current_women_capacity = 0,
+    formatted_address = "Av. Universidad 123, San Nicolás, Monterrey, NL, México",
+    id = "hostel_001",
+    is_active = true,
+    location = "Monterrey, Nuevo León",
+    location_data = Location(
+        address = "Av. Universidad 123",
+        city = "Monterrey",
+        coordinates = listOf(25.6866f, -100.3161f),
+        country = "México",
+        created_at = "2025-10-10T09:00:00Z",
+        formatted_address = "Av. Universidad 123, San Nicolás, Monterrey, NL, México",
+        google_maps_url = "https://maps.google.com/?q=25.6866,-100.3161",
+        id = "loc_001",
+        landmarks = "Cerca de la UANL",
+        latitude = "25.6866",
+        longitude = "-100.3161",
+        state = "Nuevo León",
+        timezone = "America/Monterrey",
+        updated_at = "2025-10-13T11:00:00Z",
+        zip_code = "66450"
+    ),
+    men_capacity = 25,
+    name = "Hostel Monterrey Centro",
+    phone = "+52 81 1234 5678",
+    total_capacity = 50,
+    updated_at = "2025-10-13T12:00:00Z",
+    women_capacity = 25
+)
+

@@ -128,6 +128,9 @@ fun App() {
                         vm = generalViewModel,
                         onClick = { hostelId ->
                             nav.navigate(Screen.HostelInfo.createRoute(hostelId))
+                        },
+                        onClick2 = { serviceId ->
+                            nav.navigate(Screen.ServiceInfo.createRoute(serviceId))
                         }
                     )
                 }
@@ -210,7 +213,12 @@ fun App() {
                     HostelDetailScreen(
                         hostelId = hostelId,
                         viewModel = generalViewModel,
-                        onBack = { nav.popBackStack() })
+                        onBack = { nav.popBackStack() },
+                        onReserveClick = { id ->
+                            nav.navigate(Screen.HostelReservation.createRoute(id))
+                        }
+                    )
+
                 }
             }
         }

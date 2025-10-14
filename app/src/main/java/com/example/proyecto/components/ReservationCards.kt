@@ -44,7 +44,7 @@ val exampleReservation = MyHostelReservations(
     hostel_name = "Albergue San José",
     id = "a12b34c5-d67e-89f0-1234-56789abcdef0",
     men_quantity = 2,
-    status = "pending",
+    status = "checked_out",
     status_display = "Pendiente de confirmación",
     total_people = 3,
     type = "group",
@@ -59,10 +59,13 @@ val exampleReservation = MyHostelReservations(
 @Composable
 fun ReservationCard(reservation: MyHostelReservations) {
     val backgroundColor = when (reservation.status.lowercase()) {
-        "pending" -> Color(0xFFFFF3E0) // light orange
-        "confirmed" -> Color(0xFFE8F5E9) // light green
-        "cancelled" -> Color(0xFFFFEBEE) // light red
-        else -> Color(0xFFF5F5F5) // default gray
+        "pending" -> Color(0xFFFFF3E0)   // Light orange — pending
+        "confirmed" -> Color(0xFFE8F5E9) // Light green — confirmed
+        "cancelled" -> Color(0xFFFFEBEE) // Light red — cancelled
+        "rejected" -> Color(0xFFFFEAEA)  // Pale red-pink — rejected
+        "checked_in" -> Color(0xCEE0F7FA) // Soft teal-blue — checked in
+        "checked_out" -> Color(0xFFF0F0F0) // Light gray — checked out
+        else -> Color(0xFFB0B0B0)        // Default neutral
     }
 
     Card(
@@ -96,9 +99,12 @@ fun ReservationCard(reservation: MyHostelReservations) {
                     text = reservation.status_display,
                     style = MaterialTheme.typography.bodyMedium.copy(
                         color = when (reservation.status.lowercase()) {
-                            "pending" -> Color(0xFFFF9800)
-                            "confirmed" -> Color(0xFF2E7D32)
-                            "cancelled" -> Color(0xFFD32F2F)
+                            "pending" -> Color(0xFFFFA726)     // Orange — pending action
+                            "confirmed" -> Color(0xFF136C1B)   // Green — confirmed and ready
+                            "cancelled" -> Color(0xFFE53935)   // Red — cancelled
+                            "rejected" -> Color(0xFFB71C1C)    // Dark red — explicitly rejected
+                            "checked_in" -> Color(0xFF006F75)  // Blue — guest currently checked in
+                            "checked_out" -> Color(0xFF757575) // Gray — finished/stayed completed
                             else -> Color.Gray
                         },
                         fontWeight = FontWeight.SemiBold
@@ -191,11 +197,15 @@ fun ServiceReservationCard(reservation: MyServiceReservations) {
     } catch (e: Exception) { reservation.datetime_reserved } // fallback
 
     val backgroundColor = when (reservation.status.lowercase()) {
-        "pending" -> Color(0xFFFFF3E0) // light orange
-        "confirmed" -> Color(0xFFE8F5E9) // light green
-        "cancelled" -> Color(0xFFFFEBEE) // light red
-        else -> Color(0xFFF5F5F5) // default gray
+        "pending" -> Color(0xFFFFF3E0)    // Light orange — pending approval
+        "confirmed" -> Color(0xFFE8F5E9)  // Light green — confirmed
+        "cancelled" -> Color(0xFFFFEBEE)  // Light red — cancelled
+        "rejected" -> Color(0xFFFFEAEA)   // Very pale red-pink — rejected
+        "in_progress" -> Color(0xFFE3F2FD) // Light blue — currently in progress
+        "completed" -> Color(0xFFF3E5F5)  // Soft lavender — completed
+        else -> Color(0xFFF5F5F5)         // Default neutral gray
     }
+
 
     Card(
         modifier = Modifier
@@ -233,24 +243,21 @@ fun ServiceReservationCard(reservation: MyServiceReservations) {
 
             // 3️⃣ Status Row with Icon
             Row(verticalAlignment = Alignment.CenterVertically) {
-                val statusIcon = when (reservation.status.lowercase()) {
-                    "confirmed" -> Icons.Default.CheckCircle
-                    "pending" -> Icons.Default.Schedule
-                    "cancelled" -> Icons.Default.Cancel
-                    else -> Icons.Default.Info
-                }
+
 
                 val statusColor = when (reservation.status.lowercase()) {
-                    "pending" -> Color(0xFFFF9800)
-                    "confirmed" -> Color(0xFF2E7D32)
-                    "cancelled" -> Color(0xFFD32F2F)
-                    else -> Color.Gray
+                    "pending" -> Color(0xFFFF9800)   // Orange — waiting for approval
+                    "confirmed" -> Color(0xFF2E7D32) // Green — confirmed
+                    "cancelled" -> Color(0xFFD32F2F) // Red — cancelled
+                    "rejected" -> Color(0xFFC62828)  // Darker red — explicitly rejected
+                    "in_progress" -> Color(0xFF1565C0) // Deep blue — currently being done
+                    "completed" -> Color(0xFF6A1B9A)  // Purple — completed / finished
+                    else -> Color.Gray               // Neutral default
                 }
 
                 Icon(
-                    imageVector = statusIcon,
+                    imageVector = Icons.Filled.Approval,
                     contentDescription = "Estado",
-                    tint = statusColor
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
@@ -272,10 +279,14 @@ fun ServiceReservationCard(reservation: MyServiceReservations) {
                     tint = Color(0xFF757575)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = "Desde: $localDatetime  |  Duración: ${reservation.duration_minutes} min",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                Column {
+                    Text(
+                        text = "Desde: $localDatetime",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text("Duración: ${reservation.duration_minutes} min",
+                        style = MaterialTheme.typography.bodyMedium)
+                }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -342,7 +353,7 @@ val exampleServiceReservation = MyServiceReservations(
     service = "massage",
     service_name = "Relajación muscular",
     service_price = "$50",
-    status = "pending",
+    status = "completed",
     status_display = "Pendiente de confirmación",
     total_people = 3,
     type = "individual",
