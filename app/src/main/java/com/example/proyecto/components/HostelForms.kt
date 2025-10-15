@@ -82,13 +82,13 @@ fun HostelSelector(
     onHostelSelected: (String) -> Unit
 ) {
     Column {
-        Text(text = "Select Hostel")
+        Text(text = "Seleccionar Albergue")
         Box {
             OutlinedTextField(
                 value = selectedHostel,
                 onValueChange = {},
                 readOnly = true,
-                label = { Text("Hostel") },
+                label = { Text("Escoge un Albergue") },
                 modifier = Modifier.fillMaxWidth(),
                 trailingIcon = {
                     IconButton(onClick = { onExpandChange(true) }) {
@@ -128,7 +128,7 @@ fun ReservationDetails(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         // Reservation Type
-        Text("Reservation Type")
+        Text("Tipo de Reservación")
         Row(verticalAlignment = Alignment.CenterVertically) {
             RadioButton(
                 selected = reservationType == "individual",
@@ -139,12 +139,12 @@ fun ReservationDetails(
                 selected = reservationType == "group",
                 onClick = { onTypeChange("group")}
             )
-            Text("Group")
+            Text("Grupal")
         }
 
         // Men counter
         CounterField(
-            label = "Men",
+            label = "Hombre",
             value = menCount,
             onIncrement = {
                 if (reservationType == "group") {
@@ -160,7 +160,7 @@ fun ReservationDetails(
 
         // Women counter
         CounterField(
-            label = "Women",
+            label = "Mujer",
             value = womenCount,
             onIncrement = {
                 if (reservationType == "group") {
@@ -175,7 +175,7 @@ fun ReservationDetails(
         )
 
         // Total
-        Text("Total People: $totalCount")
+        Text("Total Personas: $totalCount")
 
         DatePickerField("Fecha de llegada", onDateSelected = {onDateChange(it)})
     }
@@ -198,7 +198,6 @@ fun SubmitReservationButton(
     val formattedDate = arrivalDate?.let {
         "%04d-%02d-%02d".format(it.year, it.monthValue, it.dayOfMonth)
     } ?: ""
-    val today = LocalDate.now()
 
 
     Button(
@@ -215,10 +214,10 @@ fun SubmitReservationButton(
             onSubmit(request)  // ✅ pass back up
         },
         modifier = Modifier.fillMaxWidth(),
-        enabled = selectedHostel.isNotEmpty() && (arrivalDate != null && !arrivalDate.isBefore(today)) && (menCount + womenCount) > 0
+        enabled = selectedHostel.isNotEmpty() && arrivalDate != null && (menCount + womenCount) > 0
                 && (reservationType != "individual" || (menCount + womenCount) == 1)
     ) {
-        Text("Submit Reservation")
+        Text("Enviar Reservación")
     }
 }
 

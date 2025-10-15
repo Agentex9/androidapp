@@ -40,6 +40,9 @@ import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
+import androidx.compose.ui.res.stringResource
+import com.example.proyecto.R
+
 val exampleReservation = MyHostelReservations(
     arrival_date = "2025-10-15",
     created_at = "2025-10-09T14:30:00Z",
@@ -61,6 +64,7 @@ val exampleReservation = MyHostelReservations(
     women_quantity = 1
 )
 
+
 @Composable
 fun ReservationCard(reservation: MyHostelReservations) {
     CompositionLocalProvider(
@@ -70,13 +74,13 @@ fun ReservationCard(reservation: MyHostelReservations) {
         )
     ) {
         val backgroundColor = when (reservation.status.lowercase()) {
-            "pending" -> Color(0xFFFFF3E0)   // Light orange — pending
-            "confirmed" -> Color(0xFFE8F5E9) // Light green — confirmed
-            "cancelled" -> Color(0xFFFFEBEE) // Light red — cancelled
-            "rejected" -> Color(0xFFFFEAEA)  // Pale red-pink — rejected
-            "checked_in" -> Color(0xCEE0F7FA) // Soft teal-blue — checked in
-            "checked_out" -> Color(0xFFF0F0F0) // Light gray — checked out
-            else -> Color(0xFFB0B0B0)        // Default neutral
+            "pending" -> Color(0xFFFFF3E0)
+            "confirmed" -> Color(0xFFE8F5E9)
+            "cancelled" -> Color(0xFFFFEBEE)
+            "rejected" -> Color(0xFFFFEAEA)
+            "checked_in" -> Color(0xCEE0F7FA)
+            "checked_out" -> Color(0xFFF0F0F0)
+            else -> Color(0xFFB0B0B0)
         }
 
         Card(
@@ -92,8 +96,6 @@ fun ReservationCard(reservation: MyHostelReservations) {
                     .padding(16.dp)
                     .fillMaxWidth()
             ) {
-                // Hostel name and status row
-
                 Text(
                     text = reservation.hostel_name,
                     fontFamily = Gotham,
@@ -101,14 +103,11 @@ fun ReservationCard(reservation: MyHostelReservations) {
                     fontSize = 18.sp,
                     color = Color.Black
                 )
-
                 Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Filled.Approval,
-                        contentDescription = "Estado",
+                        contentDescription = stringResource(R.string.cd_status), // <-- CAMBIO
                         tint = Color(0xFF757575)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
@@ -116,12 +115,12 @@ fun ReservationCard(reservation: MyHostelReservations) {
                         text = reservation.status_display,
                         style = MaterialTheme.typography.bodyMedium.copy(
                             color = when (reservation.status.lowercase()) {
-                                "pending" -> Color(0xFFFFA726)     // Orange — pending action
-                                "confirmed" -> Color(0xFF136C1B)   // Green — confirmed and ready
-                                "cancelled" -> Color(0xFFE53935)   // Red — cancelled
-                                "rejected" -> Color(0xFFB71C1C)    // Dark red — explicitly rejected
-                                "checked_in" -> Color(0xFF006F75)  // Blue — guest currently checked in
-                                "checked_out" -> Color(0xFF757575) // Gray — finished/stayed completed
+                                "pending" -> Color(0xFFFFA726)
+                                "confirmed" -> Color(0xFF136C1B)
+                                "cancelled" -> Color(0xFFE53935)
+                                "rejected" -> Color(0xFFB71C1C)
+                                "checked_in" -> Color(0xFF006F75)
+                                "checked_out" -> Color(0xFF757575)
                                 else -> Color.Gray
                             },
                             fontWeight = FontWeight.SemiBold
@@ -129,12 +128,10 @@ fun ReservationCard(reservation: MyHostelReservations) {
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
-
-                // Hostel location
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.LocationOn,
-                        contentDescription = "Location",
+                        contentDescription = stringResource(R.string.cd_location), // <-- CAMBIO
                         tint = Color(0xFF757575)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
@@ -143,86 +140,75 @@ fun ReservationCard(reservation: MyHostelReservations) {
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
-
                 Spacer(modifier = Modifier.height(8.dp))
-
-                // Arrival date
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.CalendarMonth,
-                        contentDescription = "Arrival Date",
+                        contentDescription = stringResource(R.string.cd_arrival_date), // <-- CAMBIO
                         tint = Color(0xFF757575)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "Llegada: ${reservation.arrival_date}",
+                        text = "${stringResource(R.string.label_arrival)} ${reservation.arrival_date}", // <-- CAMBIO
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
-
                 Spacer(modifier = Modifier.height(8.dp))
-
-                // Reservation type
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.Info,
-                        contentDescription = "Type",
+                        contentDescription = stringResource(R.string.cd_reservation_type), // <-- CAMBIO
                         tint = Color(0xFF757575)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "Tipo: ${reservation.type_display}",
+                        text = "${stringResource(R.string.label_type)} ${reservation.type_display}", // <-- CAMBIO
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
-
                 Spacer(modifier = Modifier.height(12.dp))
-
-                // Gender distribution
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.Groups,
-                        contentDescription = "People",
+                        contentDescription = stringResource(R.string.cd_people), // <-- CAMBIO
                         tint = Color(0xFF757575)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "Hombres: ${reservation.men_quantity}   |   Mujeres: ${reservation.women_quantity}",
+                        // Usando placeholders para los números
+                        text = stringResource(R.string.label_men_women, reservation.men_quantity, reservation.women_quantity), // <-- CAMBIO
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
-
                 Spacer(modifier = Modifier.height(8.dp))
-
-                // Total
                 Text(
-                    text = "Total personas: ${reservation.total_people}",
+                    // Usando placeholder para el total
+                    text = stringResource(R.string.label_total_people, reservation.total_people), // <-- CAMBIO
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
                 )
             }
         }
     }
 }
+
 @Composable
 fun ServiceReservationCard(reservation: MyServiceReservations) {
-    // Format datetime in local timezone with AM/PM
     val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm a")
     val localDatetime = try {
         OffsetDateTime.parse(reservation.datetime_reserved)
             .atZoneSameInstant(ZoneId.systemDefault())
             .format(formatter)
-    } catch (e: Exception) { reservation.datetime_reserved } // fallback
+    } catch (e: Exception) { reservation.datetime_reserved }
 
     val backgroundColor = when (reservation.status.lowercase()) {
-        "pending" -> Color(0xFFFFF3E0)    // Light orange — pending approval
-        "confirmed" -> Color(0xFFE8F5E9)  // Light green — confirmed
-        "cancelled" -> Color(0xFFFFEBEE)  // Light red — cancelled
-        "rejected" -> Color(0xFFFFEAEA)   // Very pale red-pink — rejected
-        "in_progress" -> Color(0xFFE3F2FD) // Light blue — currently in progress
-        "completed" -> Color(0xFFF3E5F5)  // Soft lavender — completed
-        else -> Color(0xFFF5F5F5)         // Default neutral gray
+        "pending" -> Color(0xFFFFF3E0)
+        "confirmed" -> Color(0xFFE8F5E9)
+        "cancelled" -> Color(0xFFFFEBEE)
+        "rejected" -> Color(0xFFFFEAEA)
+        "in_progress" -> Color(0xFFE3F2FD)
+        "completed" -> Color(0xFFF3E5F5)
+        else -> Color(0xFFF5F5F5)
     }
-
 
     Card(
         modifier = Modifier
@@ -233,20 +219,15 @@ fun ServiceReservationCard(reservation: MyServiceReservations) {
         colors = CardDefaults.cardColors(containerColor = backgroundColor)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-
-            // 1️⃣ Service Name (Main Title)
             Text(
                 text = reservation.service_name,
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
             )
-
             Spacer(modifier = Modifier.height(4.dp))
-
-            // 2️⃣ Hostel Name with House Icon
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.Home,
-                    contentDescription = "Hostel",
+                    contentDescription = stringResource(R.string.cd_hostel), // <-- CAMBIO
                     tint = Color(0xFF757575)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
@@ -255,29 +236,21 @@ fun ServiceReservationCard(reservation: MyServiceReservations) {
                     style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray)
                 )
             }
-
             Spacer(modifier = Modifier.height(8.dp))
-
-            // 3️⃣ Status Row with Icon
             Row(verticalAlignment = Alignment.CenterVertically) {
-
-
                 val statusColor = when (reservation.status.lowercase()) {
-                    "pending" -> Color(0xFFFF9800)   // Orange — waiting for approval
-                    "confirmed" -> Color(0xFF2E7D32) // Green — confirmed
-                    "cancelled" -> Color(0xFFD32F2F) // Red — cancelled
-                    "rejected" -> Color(0xFFC62828)  // Darker red — explicitly rejected
-                    "in_progress" -> Color(0xFF1565C0) // Deep blue — currently being done
-                    "completed" -> Color(0xFF6A1B9A)  // Purple — completed / finished
-                    else -> Color.Gray               // Neutral default
+                    "pending" -> Color(0xFFFF9800)
+                    "confirmed" -> Color(0xFF2E7D32)
+                    "cancelled" -> Color(0xFFD32F2F)
+                    "rejected" -> Color(0xFFC62828)
+                    "in_progress" -> Color(0xFF1565C0)
+                    "completed" -> Color(0xFF6A1B9A)
+                    else -> Color.Gray
                 }
-
                 Icon(
                     imageVector = Icons.Filled.Approval,
-                    contentDescription = "Estado",
+                    contentDescription = stringResource(R.string.cd_status), // <-- CAMBIO
                     tint = Color(0xFF757575)
-
-
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
@@ -288,69 +261,61 @@ fun ServiceReservationCard(reservation: MyServiceReservations) {
                     )
                 )
             }
-
             Spacer(modifier = Modifier.height(8.dp))
-
-            // 4️⃣ Date & Duration
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.CalendarMonth,
-                    contentDescription = "Date & Time",
+                    contentDescription = stringResource(R.string.cd_date_time), // <-- CAMBIO
                     tint = Color(0xFF757575)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Column {
                     Text(
-                        text = "Desde: $localDatetime",
+                        text = stringResource(R.string.label_from_datetime, localDatetime), // <-- CAMBIO
                         style = MaterialTheme.typography.bodyMedium
                     )
-                    Text("Duración: ${reservation.duration_minutes} min",
-                        style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = stringResource(R.string.label_duration_minutes, reservation.duration_minutes), // <-- CAMBIO
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
             }
-
             Spacer(modifier = Modifier.height(8.dp))
-
-            // 5️⃣ Gender distribution
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.Groups,
-                    contentDescription = "People",
+                    contentDescription = stringResource(R.string.cd_people), // <-- CAMBIO
                     tint = Color(0xFF757575)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = "Hombres: ${reservation.men_quantity}   |   Mujeres: ${reservation.women_quantity}",
+                    text = stringResource(R.string.label_men_women, reservation.men_quantity, reservation.women_quantity), // <-- CAMBIO
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
-
             Spacer(modifier = Modifier.height(8.dp))
-
-            // 6️⃣ Total people
             Text(
-                text = "Total personas: ${reservation.total_people}",
+                text = stringResource(R.string.label_total_people, reservation.total_people), // <-- CAMBIO
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
             )
-
             Spacer(modifier = Modifier.height(4.dp))
-
-            // 7️⃣ Price
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.AttachMoney,
-                    contentDescription = "Price",
+                    contentDescription = stringResource(R.string.cd_price), // <-- CAMBIO
                     tint = Color(0xFF757575)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = "Precio: ${reservation.service_price}",
+                    text = stringResource(R.string.label_price, reservation.service_price), // <-- CAMBIO
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
     }
 }
+
+
 
 @Preview(showBackground = true)
 @Composable

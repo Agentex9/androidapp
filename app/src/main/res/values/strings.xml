@@ -1,3 +1,48 @@
 <resources>
     <string name="app_name">Proyecto</string>
+
+    <!-- Strings para las Tarjetas de Reservación -->
+    <string name="label_arrival">Llegada:</string>
+    <string name="label_type">Tipo:</string>
+    <string name="label_men_women">Hombres: %1$d   |   Mujeres: %2$d</string>
+    <string name="label_total_people">Total personas: %d</string>
+    <string name="label_from_datetime">Desde: %s</string>
+    <string name="label_duration_minutes">Duración: %d min</string>
+    <string name="label_price">Precio: %s</string>
+
+    <!-- Content Descriptions (para accesibilidad) -->
+    <string name="cd_status">Estado</string>
+    <string name="cd_location">Ubicación</string>
+    <string name="cd_arrival_date">Fecha de Llegada</string>
+    <string name="cd_reservation_type">Tipo de Reservación</string>
+    <string name="cd_people">Personas</string>
+    <string name="cd_hostel">Albergue</string>
+    <string name="cd_date_time">Fecha y Hora</string>
+    <string name="cd_price">Precio</string>
+
+    <!-- Strings para ReservationPicker -->
+    <string name="label_arrival_date">Fecha de llegada</string>
+    <string name="label_arrival_time">Hora de llegada</string>
+    <string name="action_choose_date">Elegir fecha</string>
+    <string name="action_choose_time">Elegir hora</string>
+    <string name="action_confirm">Confirmar</string>
+    <string name="action_ok">Aceptar</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_select_date">Seleccionar Fecha</string>
+    <string name="action_select_time">Seleccionar Hora</string>
+
+
+    <!-- Strings para Previews (opcional pero recomendado) -->
+    <string name="text_selected_date">Fecha seleccionada: %s</string>
+    <string name="text_selected_time">Hora seleccionada: %s</string>
+
+    <!-- Strings para ServiceReservationForm -->
+    <string name="label_hostel">Albergue: %s</string>
+    <string name="title_select_service">Selecciona un Servicio</string>
+    <string name="label_service">Servicio</string>
+    <string name="action_submit_service_reservation">Enviar Reservación de Servicio</string>
+    <string name="label_select_time">Seleccionar Hora</string>
+
+    <!-- Content Descriptions (Accesibilidad) -->
+    <string name="cd_expand_dropdown">Expandir menú</string>
 </resources>

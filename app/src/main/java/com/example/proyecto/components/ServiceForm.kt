@@ -6,10 +6,13 @@ import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.proyecto.R
 import com.example.proyecto.models.HServicesScheduleData
 import com.example.proyecto.models.HostelServices
 import com.example.proyecto.models.NewServiceReservation
@@ -75,11 +78,11 @@ fun ServiceReservationForm(
                 onExpandChange = { hostelExpanded = it },
                 onHostelSelected = { hostel ->
                     selectedHostel = hostel
-                    selectedService = "" // reset service when hostel changes
+                    selectedService = ""
                 }
             )
         } else {
-            Text("Hostel: $selectedHostel")
+            Text(stringResource(R.string.label_hostel, selectedHostel))
         }
 
         // Service Selector (only enabled if hostel is chosen)
@@ -92,6 +95,8 @@ fun ServiceReservationForm(
         )
 
         // Reservation details (same logic as hostel reservation)
+        // NOTA: El texto dentro de ReservationDetails ("Individual", "Grupal", etc.)
+        // debe ser traducido en el archivo donde ese componente está definido.
         ReservationDetails(
             reservationType = reservationType,
             onTypeChange = { reservationType = it },
@@ -105,7 +110,7 @@ fun ServiceReservationForm(
 
         TimePickerField(initialHour = selectedTime.hour,
             initialMinute = selectedTime.minute,
-            label = "Seleccionar Hora",
+            label = stringResource(R.string.label_select_time),
             onTimeSelected = { selectedTime = it })
 
         SubmitServiceReservationButton(
@@ -130,17 +135,20 @@ fun ServiceSelector(
     onServiceSelected: (String) -> Unit
 ) {
     Column {
-        Text(text = "Select Service")
+        Text(text = stringResource(R.string.title_select_service))
         Box {
             OutlinedTextField(
                 value = selectedService,
                 onValueChange = {},
                 readOnly = true,
-                label = { Text("Service") },
+                label = { Text(stringResource(R.string.label_service)) },
                 modifier = Modifier.fillMaxWidth(),
                 trailingIcon = {
                     IconButton(onClick = { onExpandChange(true) }) {
-                        Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                        Icon(
+                            Icons.Default.ArrowDropDown,
+                            contentDescription = stringResource(R.string.cd_expand_dropdown)
+                        )
                     }
                 }
             )
@@ -182,7 +190,7 @@ fun SubmitServiceReservationButton(
                     datetime_reserved = datetimeReserved,
                     men_quantity = menCount,
                     service = it.id,
-                    type = reservationType,
+                    type = reservationType, // Lógica sin cambios (usa "individual" o "group")
                     user = userId,
                     women_quantity = womenCount
                 )
@@ -193,7 +201,7 @@ fun SubmitServiceReservationButton(
                 && (reservationType != "individual" || (menCount + womenCount) == 1),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text("Submit Service Reservation")
+        Text(stringResource(R.string.action_submit_service_reservation))
     }
 }
 

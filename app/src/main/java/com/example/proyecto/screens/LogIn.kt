@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -20,6 +21,8 @@ import com.example.proyecto.R
 import com.example.proyecto.ViewModel.GeneralViewModel
 import com.example.proyecto.data.ResultState
 import com.example.proyecto.ui.theme.viewmodels.CountriesViewModel
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.ui.res.colorResource
 
 @Preview(showBackground = true, device = "id:pixel_9a", showSystemUi = true)
 @Composable
@@ -135,6 +138,9 @@ fun LogIn(
                 VM.verifyLogin() // 🔥 Llama a la API para mandar el OTP
             },
             modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colorResource(id = R.color.pantone_320)
+            ),
             enabled = username.isNotBlank() && localPhone.isNotBlank()
         ) {
             Text("Iniciar Sesión")
@@ -144,8 +150,11 @@ fun LogIn(
 
         Button(
             onClick = { Preregister() },
-            modifier = Modifier.fillMaxWidth()
-        ) {
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colorResource(id = R.color.pantone_320)
+            ) // 1. Cierra el paréntesis de buttonColors aquí.
+        ) {   // 2. Cierra el paréntesis del Button y abre la llave para el contenido.
             Text("PreRegister")
         }
 

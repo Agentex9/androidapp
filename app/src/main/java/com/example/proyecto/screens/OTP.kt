@@ -6,9 +6,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.proyecto.R
 
 @Preview (showBackground = true, showSystemUi = true)
 @Composable
@@ -56,7 +58,10 @@ fun OtpScreen(
                     onOtpSubmit(otp)
                 }
             },
-            modifier = Modifier.fillMaxWidth(0.9f)
+            modifier = Modifier.fillMaxWidth(0.9f),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colorResource(id = R.color.pantone_320)
+            ) // 1. Cierra el paréntesis de buttonColors aquí.
         ) {
             Text("Verificar OTP")
         }

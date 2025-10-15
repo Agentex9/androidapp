@@ -1,7 +1,17 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+}
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
 }
 
 android {
@@ -16,6 +26,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders["MAPS_API_KEY"] = localProperties.getProperty("MAPS_API_KEY", "YOUR_DEFAULT_KEY")
     }
 
     buildTypes {
@@ -27,17 +38,14 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    //Implementar si se quieren hacer test y quieres tener valores nulos o false, no es tan estricto los errores si se quita el comentario
-    /*testOptions {
-        unitTests.isReturnDefaultValues = true
-    }*/
     kotlin {
-        jvmToolchain(17) //  Kotlin usa obligatoriamente JVM 17
+        jvmToolchain(17)
         target {
             compilerOptions {
                 jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
@@ -45,8 +53,10 @@ android {
             }
         }
     }
+
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -76,7 +86,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
     implementation(libs.retrofit)
-    implementation(libs.converter.gson) // o libs.converter.moshi,   implementation(libs.converter.moshi)
+    implementation(libs.converter.gson)
 
     // Lifecycle
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -87,35 +97,24 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.security.crypto)
 
-    //image
+    // Image
     implementation(libs.coil.compose.v260)
 
-    //icons
+    // Icons
     implementation(libs.androidx.material.icons.extended)
 
-    //fechas
+    // Fechas y UI extra
     implementation(platform(libs.androidx.compose.bom.v20240500))
     implementation(libs.androidx.foundation)
 
-    //responsive
+    // Responsive
     implementation(libs.androidx.material3.window.size.class1)
 
-    //navigation
+    // Navigation
     implementation(libs.androidx.navigation.compose)
-
-    implementation(libs.androidx.runtime) // o la versión que uses
-    implementation(libs.material3)
-
-    // Navigation Compose
     implementation(libs.androidx.navigation.compose.v283)
 
-    implementation(libs.androidx.material3.v130)
-    implementation(libs.ui.tooling.preview)
-    debugImplementation(libs.ui.tooling)
-
-    //Google Maps
-    implementation("com.google.android.gms:play-services-maps:19.2.0")
-    implementation("com.google.maps.android:maps-compose:6.12.1") // for Jetpack Compose
-
-
+    // Google Maps
+    implementation(libs.play.services.maps)
+    implementation(libs.maps.compose)
 }

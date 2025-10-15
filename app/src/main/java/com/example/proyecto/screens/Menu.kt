@@ -44,9 +44,13 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import com.example.proyecto.components.HostelsMapView
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,10 +63,7 @@ fun PreviewReservationScreenLayout(vm: GeneralViewModel = viewModel(),onClick: (
     val serviceListState by vm.hostelServicesState.collectAsState()
 
     // 🔹 Fetch data when the screen loads
-    LaunchedEffect(Unit) {
-        vm.fetchHostels()
-        vm.fetchHostelServices()
-    }
+
 
     Scaffold(
         topBar = {
@@ -96,7 +97,8 @@ fun PreviewReservationScreenLayout(vm: GeneralViewModel = viewModel(),onClick: (
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp , vertical = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // 🔹 HOSTELS SECTION
@@ -169,6 +171,7 @@ fun PreviewReservationScreenLayout(vm: GeneralViewModel = viewModel(),onClick: (
                 Spacer(Modifier.height(24.dp))
 
                 // Map Section
+                HostelsMapView()
             }
         }
     }
