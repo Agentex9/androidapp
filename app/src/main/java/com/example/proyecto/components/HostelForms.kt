@@ -208,7 +208,8 @@ fun SubmitReservationButton(
                 men_quantity = menCount,
                 type = reservationType,
                 user = userId,
-                women_quantity = womenCount
+                women_quantity = womenCount,
+                status = "pending"
             )
             onSubmit(request)  // ✅ pass back up
         },

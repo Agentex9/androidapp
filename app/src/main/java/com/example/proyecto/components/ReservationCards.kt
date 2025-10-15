@@ -23,14 +23,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.proyecto.models.MyHostelReservations
 import com.example.proyecto.models.MyServiceReservations
+import com.example.proyecto.ui.theme.Gotham
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -58,134 +63,146 @@ val exampleReservation = MyHostelReservations(
 
 @Composable
 fun ReservationCard(reservation: MyHostelReservations) {
-    val backgroundColor = when (reservation.status.lowercase()) {
-        "pending" -> Color(0xFFFFF3E0)   // Light orange — pending
-        "confirmed" -> Color(0xFFE8F5E9) // Light green — confirmed
-        "cancelled" -> Color(0xFFFFEBEE) // Light red — cancelled
-        "rejected" -> Color(0xFFFFEAEA)  // Pale red-pink — rejected
-        "checked_in" -> Color(0xCEE0F7FA) // Soft teal-blue — checked in
-        "checked_out" -> Color(0xFFF0F0F0) // Light gray — checked out
-        else -> Color(0xFFB0B0B0)        // Default neutral
-    }
-
-    Card(
-        modifier = Modifier
-            .width(320.dp)
-            .padding(8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = backgroundColor)
+    CompositionLocalProvider(
+        LocalDensity provides Density(
+            LocalDensity.current.density,
+            fontScale = 1f
+        )
     ) {
-        Column(
+        val backgroundColor = when (reservation.status.lowercase()) {
+            "pending" -> Color(0xFFFFF3E0)   // Light orange — pending
+            "confirmed" -> Color(0xFFE8F5E9) // Light green — confirmed
+            "cancelled" -> Color(0xFFFFEBEE) // Light red — cancelled
+            "rejected" -> Color(0xFFFFEAEA)  // Pale red-pink — rejected
+            "checked_in" -> Color(0xCEE0F7FA) // Soft teal-blue — checked in
+            "checked_out" -> Color(0xFFF0F0F0) // Light gray — checked out
+            else -> Color(0xFFB0B0B0)        // Default neutral
+        }
+
+        Card(
             modifier = Modifier
-                .padding(16.dp)
+                .width(320.dp)
+                .padding(8.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = backgroundColor)
         ) {
-            // Hostel name and status row
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+            ) {
+                // Hostel name and status row
 
                 Text(
                     text = reservation.hostel_name,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                    fontFamily = Gotham,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    color = Color.Black
                 )
 
-            Row(verticalAlignment = Alignment.CenterVertically
-            ){
-                Icon(
-                    imageVector = Icons.Filled.Approval,
-                    contentDescription = "Estado",
-                    tint = Color(0xFF757575)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = reservation.status_display,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        color = when (reservation.status.lowercase()) {
-                            "pending" -> Color(0xFFFFA726)     // Orange — pending action
-                            "confirmed" -> Color(0xFF136C1B)   // Green — confirmed and ready
-                            "cancelled" -> Color(0xFFE53935)   // Red — cancelled
-                            "rejected" -> Color(0xFFB71C1C)    // Dark red — explicitly rejected
-                            "checked_in" -> Color(0xFF006F75)  // Blue — guest currently checked in
-                            "checked_out" -> Color(0xFF757575) // Gray — finished/stayed completed
-                            else -> Color.Gray
-                        },
-                        fontWeight = FontWeight.SemiBold
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Approval,
+                        contentDescription = "Estado",
+                        tint = Color(0xFF757575)
                     )
-            )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = reservation.status_display,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = when (reservation.status.lowercase()) {
+                                "pending" -> Color(0xFFFFA726)     // Orange — pending action
+                                "confirmed" -> Color(0xFF136C1B)   // Green — confirmed and ready
+                                "cancelled" -> Color(0xFFE53935)   // Red — cancelled
+                                "rejected" -> Color(0xFFB71C1C)    // Dark red — explicitly rejected
+                                "checked_in" -> Color(0xFF006F75)  // Blue — guest currently checked in
+                                "checked_out" -> Color(0xFF757575) // Gray — finished/stayed completed
+                                else -> Color.Gray
+                            },
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
 
-            // Hostel location
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.LocationOn,
-                    contentDescription = "Location",
-                    tint = Color(0xFF757575)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
+                // Hostel location
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = "Location",
+                        tint = Color(0xFF757575)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = reservation.hostel_location,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Arrival date
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.CalendarMonth,
+                        contentDescription = "Arrival Date",
+                        tint = Color(0xFF757575)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Llegada: ${reservation.arrival_date}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Reservation type
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = "Type",
+                        tint = Color(0xFF757575)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Tipo: ${reservation.type_display}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Gender distribution
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Groups,
+                        contentDescription = "People",
+                        tint = Color(0xFF757575)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Hombres: ${reservation.men_quantity}   |   Mujeres: ${reservation.women_quantity}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Total
                 Text(
-                    text = reservation.hostel_location,
-                    style = MaterialTheme.typography.bodyMedium
+                    text = "Total personas: ${reservation.total_people}",
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
                 )
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Arrival date
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.CalendarMonth,
-                    contentDescription = "Arrival Date",
-                    tint = Color(0xFF757575)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = "Llegada: ${reservation.arrival_date}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Reservation type
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = "Type",
-                    tint = Color(0xFF757575)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = "Tipo: ${reservation.type_display}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Gender distribution
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.Groups,
-                    contentDescription = "People",
-                    tint = Color(0xFF757575)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = "Hombres: ${reservation.men_quantity}   |   Mujeres: ${reservation.women_quantity}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Total
-            Text(
-                text = "Total personas: ${reservation.total_people}",
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
-            )
         }
     }
 }
-
 @Composable
 fun ServiceReservationCard(reservation: MyServiceReservations) {
     // Format datetime in local timezone with AM/PM
@@ -258,6 +275,9 @@ fun ServiceReservationCard(reservation: MyServiceReservations) {
                 Icon(
                     imageVector = Icons.Filled.Approval,
                     contentDescription = "Estado",
+                    tint = Color(0xFF757575)
+
+
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(

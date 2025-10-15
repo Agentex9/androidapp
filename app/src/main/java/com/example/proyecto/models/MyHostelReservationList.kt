@@ -3,5 +3,8 @@ package com.example.proyecto.models
 
 
 data class MyHostelReservationList(
-    val myHostelReservations: List<MyHostelReservations>
+    val count: Int,
+    val next: String?,
+    val previous: String?,
+    val results: List<MyHostelReservations>?
 )

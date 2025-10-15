@@ -58,7 +58,6 @@ fun HReservationScreen(
             }
 
             val hostelListState by viewModel.hostelListState.collectAsState()
-            val reservationState by viewModel.newHostelReservationState.collectAsState()
 
             when (hostelListState) {
                 is ResultState.Loading -> Text("Loading hostels...")
@@ -87,13 +86,6 @@ fun HReservationScreen(
 
                 else -> {Text("$hostelListState")}
             }
-            /*
-            when (reservationState) {
-                is ResultState.Loading -> Text("Submitting reservation...")
-                is ResultState.Success -> Text("Reservation created!")
-                is ResultState.Error -> Text("Error: ${(reservationState as ResultState.Error).message}")
-                else -> {}
-            }*/
         }
     }
 }

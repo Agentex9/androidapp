@@ -160,7 +160,7 @@ fun App() {
                     )
                 ) { backStackEntry ->
                     val hostelId = backStackEntry.arguments?.getString("hostelId")
-                    val userId = "1234"
+                    val userId = "8151ced6-4d84-4e31-b758-a7f3c70f0d33"
                     HReservationScreen(
                         preselectedHostelId = hostelId,
                         userId = userId,
@@ -199,7 +199,9 @@ fun App() {
                 }
 
                 // ------------------ HISTORIAL ------------------
-                composable(Screen.Historial.route) { }
+                composable(Screen.Historial.route) {
+                    historyScreen(generalViewModel)
+                }
 
                 // ------------------ PROFILE ------------------
                 composable(Screen.Profile.route) { }
