@@ -26,8 +26,10 @@ fun ServiceReservationScreen(
     userId: String,
     preselectedHostelId: String? = null,
     preselectedServiceId: String? = null,
-    onBack: () -> Unit = {}
+    onBack: () -> Unit = {},
+    onSuccessNavigate: () -> Unit = {}
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -46,6 +48,7 @@ fun ServiceReservationScreen(
                 }
             )
         },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) } // 👈 Add this
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -55,6 +58,8 @@ fun ServiceReservationScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             LaunchedEffect(Unit) {
+                viewModel.fetchHostels()
+                viewModel.fetchHostelServices()
                 viewModel.setServiceReservationState()
             }
 
@@ -62,26 +67,42 @@ fun ServiceReservationScreen(
             val serviceListState by viewModel.hostelServicesState.collectAsState()
             val reservationState by viewModel.newServiceReservationState.collectAsState()
 
+            // 🔹 Reservation feedback
+            LaunchedEffect(reservationState) {
+                when (reservationState) {
+                    is ResultState.Success -> {
+                        snackbarHostState.showSnackbar("✅ Reserva creada con éxito")
+                        onSuccessNavigate()
+                    }
+                    is ResultState.Error -> {
+                        val msg = (reservationState as ResultState.Error).message
+                        snackbarHostState.showSnackbar("❌ Error: $msg")
+                    }
+                    else -> {}
+                }
+            }
 
             when (hostelListState) {
                 is ResultState.Loading -> Text("Loading hostels...")
                 is ResultState.Error -> Text("Error: ${(hostelListState as ResultState.Error).message}")
                 is ResultState.Success -> {
-                    val hostels = (hostelListState as ResultState.Success<HostelList>).data.results
-                    val hostelNames = hostels?.map { it.name }
-                    val hostelIdMap = hostels?.associateBy({ it.name }, { it.id })
-
                     when (serviceListState) {
                         is ResultState.Loading -> Text("Loading services...")
                         is ResultState.Error -> Text("Error: ${(serviceListState as ResultState.Error).message}")
                         is ResultState.Success -> {
+                            val hostels = (hostelListState as ResultState.Success<HostelList>).data.results
+                            val hostelNames = hostels?.map { it.name }
+                            val hostelIdMap = hostels?.associateBy({ it.name }, { it.id })
+                            var selectedHostelName by remember { mutableStateOf("") }
+
+                            if (preselectedHostelId != null) {
+                                val preselectedHostel = hostels?.find { it.id == preselectedHostelId }
+                                selectedHostelName = preselectedHostel?.name ?: ""
+                            }
+
                             val services =
                                 (serviceListState as ResultState.Success<HostelServicesList>).data.results
 
-                            // Preselected hostel/service (if coming from detail)
-                            val preselectedHostelName = preselectedHostelId?.let { id ->
-                                hostels?.find { it.id == id }?.name
-                            }
                             val preselectedService = preselectedServiceId?.let { id ->
                                 services?.find { it.id == id }
                             }
@@ -89,7 +110,7 @@ fun ServiceReservationScreen(
                             ServiceReservationForm(
                                 hostels = hostelNames,
                                 services = services,
-                                preselectedHostel = preselectedHostelName,
+                                preselectedHostel = selectedHostelName,
                                 preselectedService = preselectedService,
                                 hostelIdMap = hostelIdMap,
                                 userId = userId,
@@ -117,140 +138,3 @@ fun ServiceReservationScreen(
     }
 }
 
-
-
-/*
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun ServiceReservationScreenPreview() {
-    // Mock Locations
-    val locationA = com.example.proyecto.models.Location(
-        address = "123 Main St",
-        city = "Monterrey",
-        country = "Mexico",
-        id = "loc1",
-        landmarks = "Near Central Park",
-        latitude = 256866,
-        longitude = -1003161,
-        state = "NL",
-        zip_code = "64000"
-    )
-
-    val locationB = com.example.proyecto.models.Location(
-        address = "456 Second Ave",
-        city = "Monterrey",
-        country = "Mexico",
-        id = "loc2",
-        landmarks = "Next to Museum",
-        latitude = 256870,
-        longitude = -1003170,
-        state = "NL",
-        zip_code = "64010"
-    )
-
-    // Mock Hostels
-    val mockHostels = listOf(
-        com.example.proyecto.models.Hostel(
-            created_at = "2025-10-01",
-            id = "1",
-            is_active = true,
-            location = locationA,
-            men_capacity = 20,
-            current_men_capacity = 5,
-            name = "Hostel A",
-            phone = "123-456-7890",
-            women_capacity = 15,
-            current_women_capacity = 3
-        ),
-        com.example.proyecto.models.Hostel(
-            created_at = "2025-10-01",
-            id = "2",
-            is_active = true,
-            location = locationB,
-            men_capacity = 25,
-            current_men_capacity = 10,
-            name = "Hostel B",
-            phone = "987-654-3210",
-            women_capacity = 20,
-            current_women_capacity = 5
-        )
-    )
-    val hostelNames = mockHostels.map { it.name }
-    val hostelIdMap = mockHostels.associateBy({ it.name }, { it.id })
-
-    // Mock Schedule
-    val mockSchedule = com.example.proyecto.models.HServicesScheduleData(
-        created_at = "2025-10-01T08:00:00",
-        created_by_name = "Admin",
-        day_name = "Monday",
-        day_of_week = 1,
-        duration_hours = 2,
-        end_time = "10:00",
-        id = "sch1",
-        is_available = true,
-        start_time = "08:00",
-        updated_at = "2025-10-01T08:30:00"
-    )
-
-    // Mock Services
-    val mockServices = listOf(
-        com.example.proyecto.models.HostelServices(
-            created_at = "2025-10-01",
-            created_by_name = "Admin",
-            hostel = "1",
-            hostel_location = "Location A",
-            hostel_name = "Hostel A",
-            id = "101",
-            is_active = true,
-            schedule = "Morning",
-            schedule_data = mockSchedule,
-            service = "S1",
-            service_description = "Laundry service for clothes",
-            service_max_time = 60,
-            service_name = "Laundry",
-            service_needs_approval = false,
-            service_price = "10",
-            total_reservations = 5,
-            updated_at = "2025-10-01"
-        ),
-        com.example.proyecto.models.HostelServices(
-            created_at = "2025-10-01",
-            created_by_name = "Admin",
-            hostel = "2",
-            hostel_location = "Location B",
-            hostel_name = "Hostel B",
-            id = "102",
-            is_active = true,
-            schedule = "Afternoon",
-            schedule_data = mockSchedule.copy(
-                id = "sch2",
-                day_name = "Tuesday",
-                start_time = "14:00",
-                end_time = "16:00"
-            ),
-            service = "S2",
-            service_description = "Shower service with hot water",
-            service_max_time = 30,
-            service_name = "Shower",
-            service_needs_approval = false,
-            service_price = "5",
-            total_reservations = 2,
-            updated_at = "2025-10-01"
-        )
-    )
-
-    // Directly show ServiceReservationForm in preview
-    com.example.proyecto.components.ServiceReservationForm(
-        hostels = hostelNames,
-        services = mockServices,
-        preselectedHostel = null,       // simulate empty selection
-        preselectedService = null,
-        hostelIdMap = hostelIdMap,
-        userId = "12345",
-        onSubmitReservation = { reservation ->
-            println("Preview Service Reservation Submitted: $reservation")
-        }
-    )
-}
-
-*/

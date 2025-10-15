@@ -57,7 +57,7 @@ interface Services {
     // Fetch user's upcoming service reservations 24 hours
     @GET("services/reservations/upcoming/")
     @Headers("No-Auth: false")
-    suspend fun getMyUpcomingServiceReservations(): Response<MyServiceReservationList>
+    suspend fun getMyUpcomingServiceReservations(): Response<Myupcomingreservations>
 
     // Create a new service reservation
     @POST("services/reservations/")
@@ -87,8 +87,10 @@ interface Services {
 
                 if (noAuthHeader == "false") {
                     val token = com.example.proyecto.models.MyApp.tokenManager.getToken()
-                    // uncomment and add your default token if needed for testing
-                    requestBuilder.addHeader("Authorization", "Token 79d53b87d4e3823f9af4088eaa44d611bbf4d1db")
+                    // uncomment and add your default token if needed for testing fb4b170b600554835658869245a1e12b74f1f9bf
+                    //requestBuilder.addHeader("Authorization", "Token fb4b170b600554835658869245a1e12b74f1f9bf")
+
+                    // 79d53b87d4e3823f9af4088eaa44d611bbf4d1db
                     if (token != null) {
                         requestBuilder.addHeader("Authorization", "Token $token")
                     }

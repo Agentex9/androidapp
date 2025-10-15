@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.proyecto.R
 import com.example.proyecto.models.HServicesScheduleData
+import com.example.proyecto.models.Hostel
 import com.example.proyecto.models.HostelServices
 import com.example.proyecto.models.NewServiceReservation
 import java.time.LocalDate
@@ -69,21 +70,18 @@ fun ServiceReservationForm(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+
         // Hostel Selector (skip if prefilled)
-        if (preselectedHostel == null) {
-            HostelSelector(
-                hostels = hostels,
-                selectedHostel = selectedHostel,
-                expanded = hostelExpanded,
-                onExpandChange = { hostelExpanded = it },
-                onHostelSelected = { hostel ->
-                    selectedHostel = hostel
-                    selectedService = ""
-                }
-            )
-        } else {
-            Text(stringResource(R.string.label_hostel, selectedHostel))
-        }
+        HostelSelector(
+            hostels = hostels,
+            selectedHostel = selectedHostel,
+            expanded = hostelExpanded,
+            onExpandChange = { hostelExpanded = it },
+            onHostelSelected = {
+                selectedHostel = it
+                selectedService = ""
+            }
+        )
 
         // Service Selector (only enabled if hostel is chosen)
         ServiceSelector(
@@ -181,6 +179,10 @@ fun SubmitServiceReservationButton(
     userId: String,
     onSubmit: (NewServiceReservation) -> Unit
 ) {
+    var status = "confirmed"
+    if (selectedService?.service_needs_approval == true){
+        status = "pending"
+    }
 
     Button(
 
@@ -192,7 +194,8 @@ fun SubmitServiceReservationButton(
                     service = it.id,
                     type = reservationType, // Lógica sin cambios (usa "individual" o "group")
                     user = userId,
-                    women_quantity = womenCount
+                    women_quantity = womenCount,
+                    status = status
                 )
                 onSubmit(request)
             }
@@ -203,77 +206,4 @@ fun SubmitServiceReservationButton(
     ) {
         Text(stringResource(R.string.action_submit_service_reservation))
     }
-}
-
-// -------------------- PREVIEW --------------------
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun ServiceReservationFormPreview() {
-    val mockSchedule = HServicesScheduleData(
-        created_at = "2025-10-01T08:00:00",
-        created_by_name = "Admin",
-        day_name = "Monday",
-        day_of_week = 1,
-        duration_hours = 2,
-        end_time = "10:00",
-        id = "sch1",
-        is_available = true,
-        start_time = "08:00",
-        updated_at = "2025-10-01T08:30:00"
-    )
-
-    val mockServices = listOf(
-        HostelServices(
-            created_at = "2025-10-01",
-            created_by_name = "Admin",
-            hostel = "1",
-            hostel_location = "Location A",
-            hostel_name = "Hostel A",
-            id = "101",
-            is_active = true,
-            schedule = "Morning",
-            schedule_data = mockSchedule,
-            service = "S1",
-            service_description = "Laundry service for clothes",
-            service_max_time = 60,
-            service_name = "Laundry",
-            service_needs_approval = false,
-            service_price = "10",
-            total_reservations = 5,
-            updated_at = "2025-10-01"
-        ),
-        HostelServices(
-            created_at = "2025-10-01",
-            created_by_name = "Admin",
-            hostel = "2",
-            hostel_location = "Location B",
-            hostel_name = "Hostel B",
-            id = "102",
-            is_active = true,
-            schedule = "Afternoon",
-            schedule_data = mockSchedule.copy(
-                id = "sch2",
-                day_name = "Tuesday",
-                start_time = "14:00",
-                end_time = "16:00"
-            ),
-            service = "S2",
-            service_description = "Shower service with hot water",
-            service_max_time = 30,
-            service_name = "Shower",
-            service_needs_approval = false,
-            service_price = "5",
-            total_reservations = 2,
-            updated_at = "2025-10-01"
-        )
-    )
-
-    ServiceReservationForm(
-        hostels = listOf("Hostel A", "Hostel B"),
-        services = mockServices,
-        userId = "12345",
-        onSubmitReservation = { reservation ->
-            println("Preview Service Reservation Submitted: $reservation")
-        }
-    )
 }

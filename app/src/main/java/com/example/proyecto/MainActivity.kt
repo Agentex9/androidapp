@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -23,6 +24,7 @@ import com.example.proyecto.data.NewHostelReservationState
 import com.example.proyecto.data.ResultState
 import com.example.proyecto.screens.*
 import com.example.proyecto.ui.theme.ProyectoTheme
+import com.example.proyecto.utilities.TokenManager
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,13 +43,19 @@ fun App() {
         // 🔹 Ruta actual para sincronizar con BottomNavMenu
         val navBackStackEntry by nav.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
+        val context = LocalContext.current
+        val tokenManager = TokenManager(context)
+        val user = tokenManager.getUser()
+        val userId = user?.id ?: ""
+
 
         // 🔹 Rutas donde NO se muestra el BottomNavMenu
         val hideBottomNav = listOf(
             Screen.Login.route,
             Screen.Register.route,
-            Screen.OTP.route
-        )
+            Screen.OTP.route,
+            Screen.Launcher.route
+            )
 
         Scaffold(
             topBar = {},
@@ -73,9 +81,25 @@ fun App() {
             // Change starting Route to Menu to see functionality
             NavHost(
                 navController = nav,
-                startDestination = Screen.Menu.route,
+                startDestination = Screen.Launcher.route,
                 modifier = Modifier.padding(innerPadding)
             ) {
+                // ------------------ LAUNCHER ------------------
+                composable(Screen.Launcher.route) {
+                    LauncherScreen(
+                        generalViewModel = generalViewModel,
+                        onAuthorized = {
+                            nav.navigate(Screen.Menu.route) {
+                                popUpTo(Screen.Launcher.route) { inclusive = true }
+                            }
+                        },
+                        onUnauthorized = {
+                            nav.navigate(Screen.Login.route) {
+                                popUpTo(Screen.Launcher.route) { inclusive = true }
+                            }
+                        }
+                    )
+                }
                 // ------------------ LOGIN ------------------
                 composable(Screen.Login.route) {
                     LogIn(
@@ -163,7 +187,6 @@ fun App() {
                     )
                 ) { backStackEntry ->
                     val hostelId = backStackEntry.arguments?.getString("hostelId")
-                    val userId = "8151ced6-4d84-4e31-b758-a7f3c70f0d33"
                     HReservationScreen(
                         preselectedHostelId = hostelId,
                         userId = userId,
@@ -196,14 +219,18 @@ fun App() {
                 ) { backStackEntry ->
                     val serviceId = backStackEntry.arguments?.getString("serviceId")
                     val hostelId = backStackEntry.arguments?.getString("hostelId")
-                    val userId = "1234"
 
                     ServiceReservationScreen(
                         preselectedServiceId = serviceId,
                         preselectedHostelId = hostelId,
                         userId = userId,
                         viewModel = generalViewModel,
-                        onBack = { nav.popBackStack() }
+                        onBack = { nav.popBackStack() },
+                        onSuccessNavigate = {
+                            nav.navigate(Screen.Menu.route) {
+                                popUpTo(Screen.Menu.route) { inclusive = true }
+                            }
+                        }
                     )
                 }
 
@@ -213,7 +240,18 @@ fun App() {
                 }
 
                 // ------------------ PROFILE ------------------
-                composable(Screen.Profile.route) { }
+                composable(Screen.Profile.route) {
+                    PerfilScreen(navigate = {
+                        // Clear session first
+                        generalViewModel.resetsession()
+
+                        // Navigate to Launcher
+                        nav.navigate(Screen.Launcher.route) {
+                            popUpTo(nav.graph.startDestinationId) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    })
+                }
 
                 // ------------------ HOSTEL INFO ------------------
                 composable(
@@ -227,6 +265,24 @@ fun App() {
                         onBack = { nav.popBackStack() },
                         onReserveClick = { id ->
                             nav.navigate(Screen.HostelReservation.createRoute(id))
+                        }
+                    )
+
+                }
+
+                // ------------------ Service INFO ------------------
+
+                composable(
+                    Screen.ServiceInfo.route,
+                    arguments = listOf(navArgument("serviceId") { type = NavType.StringType })
+                ) { backStackEntry ->
+                    val serviceid = backStackEntry.arguments?.getString("serviceId") ?: ""
+                    ServiceDetailScreen(
+                        serviceId = serviceid,
+                        viewModel = generalViewModel,
+                        onBack = { nav.popBackStack() },
+                        onReserveClick = { serviceId, hostelId ->
+                            nav.navigate(Screen.ServiceReservation.createRoute(serviceId, hostelId))
                         }
                     )
 

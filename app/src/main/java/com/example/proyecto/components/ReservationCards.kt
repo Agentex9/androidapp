@@ -221,7 +221,10 @@ fun ServiceReservationCard(reservation: MyServiceReservations) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = reservation.service_name,
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                fontFamily = Gotham,
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                color = Color.Black
             )
             Spacer(modifier = Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {

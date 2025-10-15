@@ -242,28 +242,3 @@ fun CounterField(label: String, value: Int, onIncrement: () -> Unit, onDecrement
         }
     }
 }
-
-// -------------------- PREVIEWS --------------------
-
-
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun ReservationFormPreview() {
-    val mockHostels = listOf("Hostel A", "Hostel B", "Hostel C")
-    val mockHostelIdMap = mapOf(
-        "Hostel A" to "1",
-        "Hostel B" to "2",
-        "Hostel C" to "3"
-    )
-
-    ReservationForm(
-        hostels = mockHostels,
-        preselectedHostel = "Hostel B",
-        hostelIdMap = mockHostelIdMap,
-        userId = "12345",
-        onSubmitReservation = { reservation ->
-            println("Preview Reservation Submitted: $reservation")
-        }
-    )
-}

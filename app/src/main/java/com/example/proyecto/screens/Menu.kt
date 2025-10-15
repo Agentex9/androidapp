@@ -63,6 +63,10 @@ fun PreviewReservationScreenLayout(vm: GeneralViewModel = viewModel(),onClick: (
     val serviceListState by vm.hostelServicesState.collectAsState()
 
     // 🔹 Fetch data when the screen loads
+    LaunchedEffect(Unit) {
+        vm.fetchHostelsOnce()
+        vm.fetchHostelServicesOnce()
+    }
 
 
     Scaffold(

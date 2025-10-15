@@ -47,6 +47,7 @@ import com.example.proyecto.models.MyHostelReservationList
 import com.example.proyecto.models.MyHostelReservations
 import com.example.proyecto.models.MyServiceReservationList
 import com.example.proyecto.models.MyServiceReservations
+import com.example.proyecto.models.Myupcomingreservations
 import com.example.proyecto.ui.theme.Gotham
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -145,7 +146,7 @@ fun historyScreen(vm: GeneralViewModel) {
 
                     is ResultState.Success<*> -> {
                         val reservations =
-                            (upcomingReservations as ResultState.Success<MyServiceReservationList>).data.results
+                            (upcomingReservations as ResultState.Success<Myupcomingreservations>).data.reservations
 
                         if (reservations.isNullOrEmpty()){
                             Text("No tienes Reservas Proximas")

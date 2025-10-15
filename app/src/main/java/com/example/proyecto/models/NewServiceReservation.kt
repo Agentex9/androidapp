@@ -6,5 +6,6 @@ data class NewServiceReservation(
     val service: String,
     val type: String,
     val user: String,
-    val women_quantity: Int
+    val women_quantity: Int,
+    val status: String
 )

@@ -1,7 +1,7 @@
 package com.example.proyecto.Navigation
 
 sealed class Screen(val route: String) {
-    data object Home : Screen("Home")
+    data object Launcher : Screen("Launcher")
     data object Reservation : Screen("Reservation")
     data object Historial : Screen("Historial")
     data object Profile : Screen("Perfil")
@@ -20,7 +20,7 @@ sealed class Screen(val route: String) {
         }
     }
 
-    data object ServiceReservation : Screen("ServiceReservation?serviceId={serviceId}") {
+    data object ServiceReservation : Screen("ServiceReservation?serviceId={serviceId}&hostelId={hostelId}") {
         fun createRoute(serviceId: String? = null, hostelId: String? = null): String {
             return if (serviceId != null && hostelId != null) {
                 "ServiceReservation?serviceId=$serviceId&hostelId=$hostelId"

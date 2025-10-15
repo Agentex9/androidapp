@@ -20,4 +20,5 @@ typealias ServiceReservationsState = ResultState<MyServiceReservationList>
 typealias NewHostelReservationState = ResultState<NewHostelReservation>
 typealias NewServiceReservationState = ResultState<NewServiceReservation>
 typealias PreRegistroState = ResultState<PreRegResponse>
+typealias myUpcomingReservationsState = ResultState<Myupcomingreservations>
 

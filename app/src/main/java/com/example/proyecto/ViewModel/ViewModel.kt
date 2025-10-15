@@ -54,8 +54,8 @@ class GeneralViewModel : ViewModel() {
         _myServiceReservationsState
 
     private val _myUpcomingReservationsState =
-        MutableStateFlow<ServiceReservationsState>(ResultState.Idle)
-    val myUpcomingReservationsState: StateFlow<ServiceReservationsState> =
+        MutableStateFlow<myUpcomingReservationsState>(ResultState.Idle)
+    val myUpcomingReservationsState: StateFlow<myUpcomingReservationsState> =
         _myUpcomingReservationsState
 
     private val _preRegistroState = MutableStateFlow<PreRegistroState>(ResultState.Idle)
@@ -92,6 +92,35 @@ class GeneralViewModel : ViewModel() {
         _newServiceReservationState.value = ResultState.Idle
     }
 
+    // functions for fetch once for loading menu screen
+    private var _hasCheckedSession = false
+
+    fun resetsession(){
+        _hasCheckedSession = false
+    }
+    fun checkSessionOnce() {
+        if (!_hasCheckedSession) {
+            _hasCheckedSession = true
+            fetchHostels()
+        }
+    }
+
+    private var hasLoadedHostels = false
+    private var hasLoadedServices = false
+
+    fun fetchHostelsOnce() {
+        if (!hasLoadedHostels) {
+            hasLoadedHostels = true
+            fetchHostels()
+        }
+    }
+
+    fun fetchHostelServicesOnce() {
+        if (!hasLoadedServices) {
+            hasLoadedServices = true
+            fetchHostelServices()
+        }
+    }
 
     // --------------------
     // API Calls
@@ -153,6 +182,7 @@ class GeneralViewModel : ViewModel() {
 
                 // Guardar el token
                 TokenManager(context).saveToken(response.token)
+                TokenManager(context).saveUser(response.user)
 
                 _loginState.value = ResultState.Success(response)
             } catch (e: Exception) {
