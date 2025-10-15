@@ -198,6 +198,7 @@ fun SubmitReservationButton(
     val formattedDate = arrivalDate?.let {
         "%04d-%02d-%02d".format(it.year, it.monthValue, it.dayOfMonth)
     } ?: ""
+    val today = LocalDate.now()
 
 
     Button(
@@ -214,7 +215,7 @@ fun SubmitReservationButton(
             onSubmit(request)  // ✅ pass back up
         },
         modifier = Modifier.fillMaxWidth(),
-        enabled = selectedHostel.isNotEmpty() && arrivalDate != null && (menCount + womenCount) > 0
+        enabled = selectedHostel.isNotEmpty() && (arrivalDate != null && !arrivalDate.isBefore(today)) && (menCount + womenCount) > 0
                 && (reservationType != "individual" || (menCount + womenCount) == 1)
     ) {
         Text("Submit Reservation")

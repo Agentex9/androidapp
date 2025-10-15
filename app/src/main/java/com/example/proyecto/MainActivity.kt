@@ -17,6 +17,7 @@ import androidx.navigation.navArgument
 import com.example.proyecto.Navigation.Screen
 import com.example.proyecto.ViewModel.GeneralViewModel
 import com.example.proyecto.components.BottomNavMenu
+import com.example.proyecto.data.NewHostelReservationState
 import com.example.proyecto.data.ResultState
 import com.example.proyecto.screens.*
 import com.example.proyecto.ui.theme.ProyectoTheme
@@ -165,8 +166,14 @@ fun App() {
                         preselectedHostelId = hostelId,
                         userId = userId,
                         viewModel = generalViewModel,
-                        onBack = { nav.popBackStack() }
+                        onBack = { nav.popBackStack() },
+                        onSuccessNavigate = {
+                            nav.navigate(Screen.Menu.route) {
+                                popUpTo(Screen.Menu.route) { inclusive = true }
+                            }
+                        }
                     )
+
                 }
 
                 // ------------------ SERVICE RESERVATION ------------------

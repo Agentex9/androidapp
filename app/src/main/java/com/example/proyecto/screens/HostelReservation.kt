@@ -24,8 +24,11 @@ fun HReservationScreen(
     viewModel: GeneralViewModel,
     userId: String,
     preselectedHostelId: String? = null,
-    onBack: () -> Unit = {}
+    onBack: () -> Unit = {},
+    onSuccessNavigate: () -> Unit = {} // 👈 callback to go back to menu
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -44,7 +47,9 @@ fun HReservationScreen(
                 }
             )
         },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) } // 👈 Add this
     ) { innerPadding ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -52,25 +57,44 @@ fun HReservationScreen(
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // 🔹 Fetch hostels and reset state
             LaunchedEffect(Unit) {
                 viewModel.fetchHostels()
                 viewModel.setHostelReservationState()
             }
 
             val hostelListState by viewModel.hostelListState.collectAsState()
+            val reservationState by viewModel.newHostelReservationState.collectAsState()
+
+            // 🔹 Reservation feedback
+            LaunchedEffect(reservationState) {
+                when (reservationState) {
+                    is ResultState.Success -> {
+                        snackbarHostState.showSnackbar("✅ Reserva creada con éxito")
+                        onSuccessNavigate()
+                    }
+                    is ResultState.Error -> {
+                        val msg = (reservationState as ResultState.Error).message
+                        snackbarHostState.showSnackbar("❌ Error: $msg")
+                    }
+                    else -> {}
+                }
+            }
 
             when (hostelListState) {
-                is ResultState.Loading -> Text("Loading hostels...")
+                is ResultState.Loading -> Text("Cargando hostales...")
                 is ResultState.Error -> Text("Error: ${(hostelListState as ResultState.Error).message}")
                 is ResultState.Success -> {
                     val hostels = (hostelListState as ResultState.Success<HostelList>).data.results
                     val hostelNames = hostels?.map { it.name }
                     val hostelIdMap = hostels?.associateBy({ it.name }, { it.id })
                     var selectedHostelName by remember { mutableStateOf("") }
+
                     if (preselectedHostelId != null) {
                         val preselectedHostel = hostels?.find { it.id == preselectedHostelId }
                         selectedHostelName = preselectedHostel?.name ?: ""
                     }
+
                     ReservationForm(
                         hostels = hostelNames,
                         preselectedHostel = selectedHostelName,
@@ -80,15 +104,18 @@ fun HReservationScreen(
                             viewModel.createHostelReservation(request)
                         }
                     )
-
-
                 }
 
-                else -> {Text("$hostelListState")}
+                else -> Text("$hostelListState")
+            }
+
+            if (reservationState is ResultState.Loading) {
+                Text("Enviando reserva...")
             }
         }
     }
 }
+
 
 
 

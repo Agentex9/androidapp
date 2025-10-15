@@ -251,7 +251,6 @@ class GeneralViewModel : ViewModel() {
                 val response = Services.instance.createHostelReservation(request)
                 if (response.isSuccessful && response.body() != null) {
                     _newHostelReservationState.value = ResultState.Success(response.body()!!)
-                    setHostelReservationState()
                 } else {
                     _newHostelReservationState.value = ResultState.Error(response.message())
                 }
