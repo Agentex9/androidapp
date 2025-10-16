@@ -20,6 +20,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,6 +33,14 @@ import com.example.proyecto.models.Hostel
 import com.example.proyecto.models.HostelList
 import com.example.proyecto.data.ResultState
 import com.example.proyecto.ui.theme.Gotham
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.MapUiSettings
+import com.example.proyecto.ui.theme.*
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -169,8 +178,52 @@ fun HostelDetailScreen(
                                 color = Color.Gray.copy(alpha = 0.3f)
                             )
 
-                            // Location Section (unchanged but better spacing)
                             Text("Ubicación", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+
+                            if (hostel.coordinates.size >= 2) {
+                                val latitude = hostel.coordinates[0].toDouble()
+                                val longitude = hostel.coordinates[1].toDouble()
+                                val hostelLocation = LatLng(latitude, longitude)
+
+                                val cameraPositionState =
+                                    rememberCameraPositionState {
+                                    // Establece la posición inicial de la cámara en la ubicación del albergue
+                                    // con un nivel de zoom adecuado (ej. 14f para una vista de ciudad)
+                                    position = CameraPosition.fromLatLngZoom(hostelLocation, 14f)
+                                }
+
+
+                                GoogleMap(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(200.dp)
+                                        .clip(RoundedCornerShape(12.dp)),
+                                    cameraPositionState = cameraPositionState,
+                                    uiSettings = MapUiSettings(
+                                        scrollGesturesEnabled = false,
+                                        zoomGesturesEnabled = false,
+                                        rotationGesturesEnabled = false,
+                                        tiltGesturesEnabled = false,
+                                        compassEnabled = false,
+                                        mapToolbarEnabled = false
+                                    )
+                                ) {
+                                    // CORRECCIÓN: Usar remember para MarkerState
+                                    val markerState = remember { MarkerState(position = hostelLocation) }
+                                    Marker(
+                                        state = markerState, // Usar la instancia recordada del estado
+                                        title = hostel.name,
+                                        snippet = hostel.location_data.address
+                                    )
+                                }
+                            } else {
+                                Text(
+                                    "Coordenadas de ubicación no disponibles para el mapa.",
+                                    fontSize = 14.sp,
+                                    color = Color.Gray
+                                )
+                            }
+
                             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                                 Text("Dirección: ${hostel.location_data.address}", fontSize = 14.sp)
                                 Text("Ciudad: ${hostel.location_data.city}", fontSize = 14.sp)
@@ -180,22 +233,29 @@ fun HostelDetailScreen(
                                 Text("Puntos de referencia: ${hostel.location_data.landmarks}", fontSize = 14.sp)
                             }
 
-                            Spacer(modifier = Modifier.height(24.dp))
+                            Spacer(modifier = Modifier.height(6.dp))
 
                             // Reserve Button
                             Button(
                                 onClick = { onReserveClick(hostel.id) },
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(50.dp),
-                                shape = RoundedCornerShape(12.dp)
+                                    .height(40.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                                    containerColor = Pantone320,
+                                    contentColor = White
+                                )
+
                             ) {
-                                Text("Reservar Albergue", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                                Text("Reservar Albergue",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = White )
                             }
                         }
                     }
                 }
-
                 else -> {
                     Text("Sin datos", modifier = Modifier.align(Alignment.Center))
                 }

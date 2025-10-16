@@ -25,6 +25,8 @@ import com.example.proyecto.models.HostelServices
 import com.example.proyecto.data.ResultState
 import com.example.proyecto.models.HostelServicesList
 import com.example.proyecto.ui.theme.Gotham
+import com.example.proyecto.ui.theme.*
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -163,10 +165,17 @@ fun ServiceDetailScreen(
                                 onClick = { onReserveClick(service.id,service.hostel) },
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(50.dp),
-                                shape = RoundedCornerShape(12.dp)
+                                    .height(40.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                                    containerColor = Pantone320,
+                                    contentColor = White
+                                ),
                             ) {
-                                Text("Reservar Servicio", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                                Text("Reservar Servicio",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = White )
                             }
                         }
                     }

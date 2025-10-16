@@ -18,5 +18,6 @@ data class Hostel(
     val phone: String,
     val total_capacity: Int,
     val updated_at: String,
-    val women_capacity: Int
+    val women_capacity: Int,
+    val imageResId: Int? = null
 )
