@@ -1,0 +1,35 @@
+[
+  {
+    "id": "posada_del_peregrino",
+    "name": "Posada del Peregrino",
+    "state": "N.L.",
+    "city": "Monterrey",
+    "country": "México",
+    "neighborhood": "Chepevera",
+    "latitude": 25.683345486074938,
+    "longitude": -100.34547424967124,
+    "image_key": "posada_peregrino"
+  },
+  {
+    "id": "divina_providencia",
+    "name": "Divina Providencia",
+    "state": "N.L.",
+    "city": "Monterrey",
+    "country": "México",
+    "neighborhood": "Centro",
+    "latitude": 25.66838634821009,
+    "longitude": -100.303116273627,
+    "image_key": "divina_providencia"
+  },
+  {
+    "id": "albergue_contigo",
+    "name": "Albergue Contigo",
+    "state": "N.L.",
+    "city": "Apodaca",
+    "country": "México",
+    "neighborhood": "Junto a IMSS #67 ",
+    "latitude": 25.79226,
+    "longitude": -100.14017,
+    "image_key": "albergue_contigo"
+  }
+]
