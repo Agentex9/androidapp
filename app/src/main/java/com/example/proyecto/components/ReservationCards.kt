@@ -16,14 +16,24 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButtonDefaults.Icon
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,37 +52,22 @@ import java.time.format.DateTimeFormatter
 
 import androidx.compose.ui.res.stringResource
 import com.example.proyecto.R
-
-val exampleReservation = MyHostelReservations(
-    arrival_date = "2025-10-15",
-    created_at = "2025-10-09T14:30:00Z",
-    created_by_name = "Juan Pérez",
-    hostel = "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    hostel_location = "Monterrey, Nuevo León",
-    hostel_name = "Albergue San José",
-    id = "a12b34c5-d67e-89f0-1234-56789abcdef0",
-    men_quantity = 2,
-    status = "checked_out",
-    status_display = "Pendiente de confirmación",
-    total_people = 3,
-    type = "group",
-    type_display = "Grupo",
-    updated_at = "2025-10-09T16:00:00Z",
-    user = "123e4567-e89b-12d3-a456-426614174000",
-    user_name = "Carlos Ramírez",
-    user_phone = "+52811908593",
-    women_quantity = 1
-)
-
+import com.example.proyecto.ViewModel.GeneralViewModel
+import com.example.proyecto.data.ResultState
 
 @Composable
-fun ReservationCard(reservation: MyHostelReservations) {
+fun ReservationCard(reservation: MyHostelReservations, viewModel: GeneralViewModel, snackbarHostState: SnackbarHostState) {
     CompositionLocalProvider(
         LocalDensity provides Density(
             LocalDensity.current.density,
             fontScale = 1f
         )
     ) {
+        var showActionDialog by remember { mutableStateOf(false) }
+        var showConfirmDialog by remember { mutableStateOf(false) }
+
+        val cancelState = viewModel.cancelReservationState.collectAsState().value
+
         val backgroundColor = when (reservation.status.lowercase()) {
             "pending" -> Color(0xFFFFF3E0)
             "confirmed" -> Color(0xFFE8F5E9)
@@ -86,7 +81,8 @@ fun ReservationCard(reservation: MyHostelReservations) {
         Card(
             modifier = Modifier
                 .width(320.dp)
-                .padding(8.dp),
+                .padding(8.dp)
+                .clickable { showActionDialog = true },
             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = backgroundColor)
@@ -188,17 +184,95 @@ fun ReservationCard(reservation: MyHostelReservations) {
                 )
             }
         }
+
+        if (showActionDialog) {
+            AlertDialog(
+                onDismissRequest = { showActionDialog = false },
+                title = { Text("Opciones de reservación") },
+                text = { Text("¿Qué deseas hacer con esta reservación?") },
+                confirmButton = {
+                    if (reservation.status.lowercase() in listOf("pending", "confirmed")) {
+                        TextButton(onClick = {
+                            showActionDialog = false
+                            showConfirmDialog = true
+                        }) {
+                            Text("Cancelar reservación", color = MaterialTheme.colorScheme.error)
+                        }
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showActionDialog = false }) {
+                        Text("Regresar")
+                    }
+                }
+            )
+        }
+
+        // Second dialog: confirmation for cancellation
+        if (showConfirmDialog) {
+            AlertDialog(
+                onDismissRequest = { showConfirmDialog = false },
+                title = { Text("Confirmar cancelación") },
+                text = { Text("¿Estás seguro de que deseas cancelar esta reservación?") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showConfirmDialog = false
+                        viewModel.cancelHostelReservation(reservation.id)
+                    }) {
+                        Text("Sí, cancelar", color = MaterialTheme.colorScheme.error)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showConfirmDialog = false }) {
+                        Text("No")
+                    }
+                }
+            )
+        }
+
+        // Feedback handling (loading, success, error)
+        LaunchedEffect(cancelState) {
+            when (cancelState) {
+                is ResultState.Success -> {
+                    snackbarHostState.showSnackbar(
+                        message = "Reservación cancelada con éxito",
+                        withDismissAction = true
+                    )
+                    viewModel.resetCancelState()
+                }
+
+                is ResultState.Error -> {
+                    snackbarHostState.showSnackbar(
+                        message = "Error: ${cancelState.message}",
+                        withDismissAction = true
+                    )
+                    viewModel.resetCancelState()
+                }
+
+                else -> {}
+            }
+        }
+
+        // Optional loading indicator (tiny one)
+        if (cancelState is ResultState.Loading) {
+            CircularProgressIndicator(modifier = Modifier.padding(8.dp))
+        }
     }
 }
 
 @Composable
-fun ServiceReservationCard(reservation: MyServiceReservations) {
+fun ServiceReservationCard(reservation: MyServiceReservations, viewModel: GeneralViewModel, snackbarHostState: SnackbarHostState) {
     val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm a")
     val localDatetime = try {
         OffsetDateTime.parse(reservation.datetime_reserved)
             .atZoneSameInstant(ZoneId.systemDefault())
             .format(formatter)
     } catch (e: Exception) { reservation.datetime_reserved }
+
+    var showActionDialog by remember { mutableStateOf(false) }
+    var showConfirmDialog by remember { mutableStateOf(false) }
+
+    val cancelState = viewModel.cancelReservationState.collectAsState().value
 
     val backgroundColor = when (reservation.status.lowercase()) {
         "pending" -> Color(0xFFFFF3E0)
@@ -213,7 +287,8 @@ fun ServiceReservationCard(reservation: MyServiceReservations) {
     Card(
         modifier = Modifier
             .width(320.dp)
-            .padding(8.dp),
+            .padding(8.dp)
+            .clickable { showActionDialog = true },
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = backgroundColor)
@@ -316,48 +391,80 @@ fun ServiceReservationCard(reservation: MyServiceReservations) {
             }
         }
     }
-}
 
 
+    if (showActionDialog) {
+        AlertDialog(
+            onDismissRequest = { showActionDialog = false },
+            title = { Text("Opciones de reservación") },
+            text = { Text("¿Qué deseas hacer con esta reservación?") },
+            confirmButton = {
+                if (reservation.status.lowercase() in listOf("pending", "confirmed")) {
+                    TextButton(onClick = {
+                        showActionDialog = false
+                        showConfirmDialog = true
+                    }) {
+                        Text("Cancelar reservación", color = MaterialTheme.colorScheme.error)
+                    }
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showActionDialog = false }) {
+                    Text("Regresar")
+                }
+            }
+        )
+    }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewReservationCard() {
-    ReservationCard(reservation = exampleReservation)
-}
+    // Second dialog: confirmation for cancellation
+    if (showConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showConfirmDialog = false },
+            title = { Text("Confirmar cancelación") },
+            text = { Text("¿Estás seguro de que deseas cancelar esta reservación?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showConfirmDialog = false
+                    viewModel.cancelServiceReservation(reservation.id)
+                }) {
+                    Text("Sí, cancelar", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showConfirmDialog = false }) {
+                    Text("No")
+                }
+            }
+        )
+    }
 
-// Example data
-val exampleServiceReservation = MyServiceReservations(
-    created_at = "2025-10-09T14:30:00Z",
-    created_by_name = "Carlos Ramírez",
-    datetime_reserved = "2025-10-15T10:00:00Z",
-    duration_minutes = 90,
-    end_datetime_reserved = "2025-10-15T11:30:00Z",
-    hostel_location = "Monterrey, Nuevo León", // optional, can ignore in card
-    hostel_name = "Albergue San José",
-    id = "b12c34d5-e67f-89g0-1234-56789abcdef1",
-    is_expired = false,
-    men_quantity = 2,
-    service = "massage",
-    service_name = "Relajación muscular",
-    service_price = "$50",
-    status = "completed",
-    status_display = "Pendiente de confirmación",
-    total_people = 3,
-    type = "individual",
-    type_display = "Individual",
-    updated_at = "2025-10-09T15:00:00Z",
-    user = "123e4567-e89b-12d3-a456-426614174000",
-    user_name = "Carlos Ramírez",
-    user_phone = "+52811908593",
-    women_quantity = 1
-)
+    // Feedback handling (loading, success, error)
+    LaunchedEffect(cancelState) {
+        when (cancelState) {
+            is ResultState.Success -> {
+                snackbarHostState.showSnackbar(
+                    message = "Reservación cancelada con éxito",
+                    withDismissAction = true
+                )
+                viewModel.resetCancelState()
+            }
 
-// Preview
-@Preview(showBackground = true)
-@Composable
-fun PreviewServiceReservationCard() {
-    ServiceReservationCard(reservation = exampleServiceReservation)
+            is ResultState.Error -> {
+                snackbarHostState.showSnackbar(
+                    message = "Error: ${cancelState.message}",
+                    withDismissAction = true
+                )
+                viewModel.resetCancelState()
+            }
+
+            else -> {}
+        }
+    }
+
+    // Optional loading indicator (tiny one)
+    if (cancelState is ResultState.Loading) {
+        CircularProgressIndicator(modifier = Modifier.padding(8.dp))
+    }
 }
 
 

@@ -15,6 +15,8 @@ import com.example.proyecto.models.PreRegResponse
 import com.example.proyecto.models.AdminLoginRequest
 import com.example.proyecto.models.PhoneVerificationRequest
 import com.example.proyecto.models.TokenResponse
+import retrofit2.http.PATCH
+import retrofit2.http.Path
 
 
 interface Services {
@@ -44,6 +46,11 @@ interface Services {
     @Headers("No-Auth: false")
     suspend fun createHostelReservation(@Body request: NewHostelReservation): Response<NewHostelReservation>
 
+    // Update Status enpoint
+    @PATCH("/api/albergues/reservations/{id}/")
+    @Headers("No-Auth: false")
+    suspend fun cancelReservation(@Path("id") id: String, @Body request: Status): Response<Unit>
+
     // Fetch hostel services
     @GET("services/hostel-services/")
     @Headers("No-Auth: false")
@@ -71,6 +78,9 @@ interface Services {
     @POST("users/auth/admin-login/")
     suspend fun adminLogin(@Body req: AdminLoginRequest): TokenResponse
 
+    @PATCH("/api/services/reservations/{id}/")
+    @Headers("No-Auth: false")
+    suspend fun cancelServiceReservation(@Path("id") id: String, @Body request: Status): Response<Unit>
     @POST("users/phone-verification/verify/")
     suspend fun userLogin(@Body req: PhoneVerificationRequest): TokenResponse
     companion object {
@@ -88,7 +98,7 @@ interface Services {
                 if (noAuthHeader == "false") {
                     val token = com.example.proyecto.models.MyApp.tokenManager.getToken()
                     // uncomment and add your default token if needed for testing fb4b170b600554835658869245a1e12b74f1f9bf
-                    //requestBuilder.addHeader("Authorization", "Token fb4b170b600554835658869245a1e12b74f1f9bf")
+                    requestBuilder.addHeader("Authorization", "Token 79d53b87d4e3823f9af4088eaa44d611bbf4d1db")
 
                     // 79d53b87d4e3823f9af4088eaa44d611bbf4d1db
                     if (token != null) {

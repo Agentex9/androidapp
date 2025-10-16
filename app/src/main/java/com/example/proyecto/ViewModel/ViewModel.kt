@@ -1,6 +1,7 @@
 package com.example.proyecto.ViewModel
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.proyecto.models.*
@@ -72,6 +73,10 @@ class GeneralViewModel : ViewModel() {
         MutableStateFlow<NewServiceReservationState>(ResultState.Idle)
     val newServiceReservationState: StateFlow<NewServiceReservationState> =
         _newServiceReservationState
+
+
+    private val _cancelReservationState = MutableStateFlow<ResultState<Unit>>(ResultState.Idle)
+    val cancelReservationState: StateFlow<ResultState<Unit>> = _cancelReservationState
 
 
     // --------------------
@@ -283,6 +288,8 @@ class GeneralViewModel : ViewModel() {
                     _newHostelReservationState.value = ResultState.Success(response.body()!!)
                 } else {
                     _newHostelReservationState.value = ResultState.Error(response.message())
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("Reservation", "Error ${response.code()}: $errorBody")
                 }
             } catch (e: Exception) {
                 _newHostelReservationState.value = ResultState.Error(e.message ?: "Unknown error")
@@ -327,6 +334,59 @@ class GeneralViewModel : ViewModel() {
                 _preRegistroState.value =
                     ResultState.Error(e.message ?: "Error de red o desconocido")
                 println("Excepción en pre-registro: ${e.message}")
+            }
+        }
+    }
+
+    fun resetCancelState() {
+        _cancelReservationState.value = ResultState.Idle
+    }
+
+    fun cancelHostelReservation(reservationId: String) {
+        viewModelScope.launch {
+            _cancelReservationState.value = ResultState.Loading
+            try {
+                val response = Services.instance.cancelReservation(
+                    reservationId,
+                    Status("cancelled")
+                )
+
+                if (response.isSuccessful) {
+                    _cancelReservationState.value = ResultState.Success(Unit)
+                    fetchMyHostelReservations()
+                } else {
+                    _cancelReservationState.value = ResultState.Error(
+                        "Error ${response.code()}: ${response.message()}"
+                    )
+                }
+            } catch (e: Exception) {
+                _cancelReservationState.value =
+                    ResultState.Error(e.message ?: "Unknown error")
+            }
+        }
+    }
+
+    fun cancelServiceReservation(reservationId: String) {
+        viewModelScope.launch {
+            _cancelReservationState.value = ResultState.Loading
+            try {
+                val response = Services.instance.cancelServiceReservation(
+                    reservationId,
+                    Status("cancelled")
+                )
+
+                if (response.isSuccessful) {
+                    _cancelReservationState.value = ResultState.Success(Unit)
+                    fetchMyServiceReservations()
+                    fetchMyUpcomingServiceReservations()
+                } else {
+                    _cancelReservationState.value = ResultState.Error(
+                        "Error ${response.code()}: ${response.message()}"
+                    )
+                }
+            } catch (e: Exception) {
+                _cancelReservationState.value =
+                    ResultState.Error(e.message ?: "Unknown error")
             }
         }
     }

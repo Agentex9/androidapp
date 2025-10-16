@@ -179,10 +179,6 @@ fun SubmitServiceReservationButton(
     userId: String,
     onSubmit: (NewServiceReservation) -> Unit
 ) {
-    var status = "confirmed"
-    if (selectedService?.service_needs_approval == true){
-        status = "pending"
-    }
 
     Button(
 
@@ -195,7 +191,7 @@ fun SubmitServiceReservationButton(
                     type = reservationType, // Lógica sin cambios (usa "individual" o "group")
                     user = userId,
                     women_quantity = womenCount,
-                    status = status
+                    status = if (it.service_needs_approval) "pending" else "confirmed"
                 )
                 onSubmit(request)
             }
