@@ -63,11 +63,6 @@ fun ReservationScreen(
                             fontSize = 20.sp
                         )
                     },
-                    navigationIcon = {
-                        IconButton(onClick = onBack) {
-                            Icon(Icons.Filled.ArrowBack, contentDescription = "Regresar")
-                        }
-                    }
                 )
             }
         ) { innerPadding ->

@@ -2,6 +2,8 @@ package com.example.proyecto.components
 
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -51,6 +53,31 @@ fun ServiceReservationForm(
 
     var datetimeReserved by remember { mutableStateOf<LocalDate?>(null) }
     var selectedTime by remember { mutableStateOf(LocalTime.now()) }
+    // ✅ Get the actual service object using the name
+    val selectedServiceObj = filteredServices?.firstOrNull { it.service_name == selectedService }
+
+    // ✅ Parse start and end times from the service (if available)
+    val serviceStart = remember(selectedServiceObj) {
+        selectedServiceObj?.schedule_data?.start_time?.let { LocalTime.parse(it) }
+    }
+    val serviceEnd = remember(selectedServiceObj) {
+        selectedServiceObj?.schedule_data?.end_time?.let { LocalTime.parse(it) }
+    }
+
+    // ✅ Check if the time picker selection is within the service schedule
+    val isValidTime by remember(selectedTime, serviceStart, serviceEnd) {
+        mutableStateOf(
+            if (serviceStart != null && serviceEnd != null)
+                !selectedTime.isBefore(serviceStart) && !selectedTime.isAfter(serviceEnd)
+            else true // Valid if no schedule info
+        )
+    }
+
+    val isFutureDate by remember(datetimeReserved) {
+        mutableStateOf(
+            datetimeReserved?.let { !it.isBefore(LocalDate.now()) } ?: false
+        )
+    }
 
     val isoString: String by remember(datetimeReserved, selectedTime) {
         derivedStateOf {
@@ -67,7 +94,8 @@ fun ServiceReservationForm(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
@@ -118,7 +146,9 @@ fun ServiceReservationForm(
             menCount = menCount,
             womenCount = womenCount,
             userId = userId,
-            onSubmit = onSubmitReservation
+            onSubmit = onSubmitReservation,
+            validtime = isValidTime,
+            isfuture = isFutureDate
         )
     }
 }
@@ -177,7 +207,9 @@ fun SubmitServiceReservationButton(
     menCount: Int,
     womenCount: Int,
     userId: String,
-    onSubmit: (NewServiceReservation) -> Unit
+    onSubmit: (NewServiceReservation) -> Unit,
+    validtime: Boolean,
+    isfuture: Boolean
 ) {
 
     Button(
@@ -196,7 +228,7 @@ fun SubmitServiceReservationButton(
                 onSubmit(request)
             }
         },
-        enabled = selectedService != null && datetimeReserved.isNotBlank() && (menCount + womenCount) > 0
+        enabled = selectedService != null && datetimeReserved.isNotBlank() && validtime && isfuture && (menCount + womenCount) > 0
                 && (reservationType != "individual" || (menCount + womenCount) == 1),
         modifier = Modifier.fillMaxWidth()
     ) {

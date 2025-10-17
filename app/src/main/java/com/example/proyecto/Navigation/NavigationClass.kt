@@ -10,6 +10,8 @@ sealed class Screen(val route: String) {
     data object Register : Screen("Register")
     data object Menu : Screen("Menu")
 
+    data object Privacy : Screen("pdfScreen")
+
     data object HostelReservation : Screen("HostelReservation?hostelId={hostelId}") {
         fun createRoute(hostelId: String? = null): String {
             return if (hostelId != null) {

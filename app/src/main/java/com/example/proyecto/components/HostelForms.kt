@@ -89,7 +89,6 @@ fun HostelSelector(
 ) {
     Column {
         Text(text = "Seleccionar Albergue")
-        Spacer(modifier = Modifier.height(6.dp))
         Box {
             OutlinedTextField(
                 value = selectedHostel,
@@ -206,6 +205,13 @@ fun SubmitReservationButton(
         "%04d-%02d-%02d".format(it.year, it.monthValue, it.dayOfMonth)
     } ?: ""
 
+    val isFutureDate by remember(arrivalDate) {
+        mutableStateOf(
+            arrivalDate?.let { !it.isBefore(LocalDate.now()) } ?: false
+        )
+    }
+
+
 
     Button(
         onClick = {
@@ -220,16 +226,13 @@ fun SubmitReservationButton(
             )
             onSubmit(request)  // ✅ pass back up
         },
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(40.dp),
+        modifier = Modifier.fillMaxWidth(),
+        enabled = selectedHostel.isNotEmpty() && arrivalDate != null && isFutureDate && (menCount + womenCount) > 0,
         colors = androidx.compose.material3.ButtonDefaults.buttonColors(
             containerColor = Pantone320,
             contentColor = White
         ),
         shape = RoundedCornerShape(12.dp),
-        enabled = selectedHostel.isNotEmpty() && arrivalDate != null && (menCount + womenCount) > 0
-                && (reservationType != "individual" || (menCount + womenCount) == 1)
     ) {
         Text("Enviar Reservación",
             fontSize = 16.sp,

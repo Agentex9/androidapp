@@ -22,6 +22,21 @@ import com.example.proyecto.ViewModel.GeneralViewModel
 import com.example.proyecto.data.ResultState
 import com.example.proyecto.models.PreRegForm
 import com.example.proyecto.ui.theme.viewmodels.CountriesViewModel
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.viewinterop.AndroidView
+import com.example.proyecto.utilities.AVISO_PRIVACIDAD
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -89,8 +104,9 @@ fun PreRegistroScreen(
     generalViewModel: GeneralViewModel = viewModel(),
     countriesVM: CountriesViewModel = viewModel(),
     onDone: () -> Unit = {},
-    onBack: () -> Unit = {}
+    onBack: () -> Unit = {},
 ) {
+    var showPdf by remember { mutableStateOf(false) }
     var nombre by remember { mutableStateOf("") }
     var apellido by remember { mutableStateOf("") }
     var edad by remember { mutableStateOf("") }
@@ -123,139 +139,221 @@ fun PreRegistroScreen(
             .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(Modifier.height(8.dp))
+        when (showPdf) {
+            false -> {
+                Spacer(Modifier.height(8.dp))
 
-        Image(
-            painter = painterResource(R.drawable.caritas_bg),
-            contentDescription = "Logo Cáritas",
-            modifier = Modifier
-                .fillMaxWidth(0.6f)
-                .aspectRatio(1f),
-            contentScale = ContentScale.Fit
-        )
+                Image(
+                    painter = painterResource(R.drawable.caritas_bg),
+                    contentDescription = "Logo Cáritas",
+                    modifier = Modifier
+                        .fillMaxWidth(0.6f)
+                        .aspectRatio(1f),
+                    contentScale = ContentScale.Fit
+                )
 
-        Text("Pre-registro Cáritas Mty", style = MaterialTheme.typography.titleLarge)
-        Spacer(Modifier.height(20.dp))
+                Text("Pre-registro Cáritas Mty", style = MaterialTheme.typography.titleLarge)
 
-        OutlinedTextField(
-            value = nombre,
-            onValueChange = { nombre = it },
-            label = { Text("Nombre") },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !loading
-        )
-        Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(20.dp))
 
-        OutlinedTextField(
-            value = apellido,
-            onValueChange = { apellido = it },
-            label = { Text("Apellido") },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !loading
-        )
-        Spacer(Modifier.height(12.dp))
+                OutlinedTextField(
+                    value = nombre,
+                    onValueChange = { nombre = it },
+                    label = { Text("Nombre") },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !loading
+                )
+                Spacer(Modifier.height(12.dp))
 
-        OutlinedTextField(
-            value = edad,
-            onValueChange = { if (it.all(Char::isDigit) && it.length <= 3) edad = it },
-            label = { Text("Edad") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !loading
-        )
-        Spacer(Modifier.height(12.dp))
+                OutlinedTextField(
+                    value = apellido,
+                    onValueChange = { apellido = it },
+                    label = { Text("Apellido") },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !loading
+                )
+                Spacer(Modifier.height(12.dp))
 
-        // Campo Género
-        ExposedDropdownMenuBox(
-            expanded = generoMenu,
-            onExpandedChange = { if (!loading) generoMenu = !generoMenu }
-        ) {
-            OutlinedTextField(
-                value = genero,
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Género") },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = generoMenu) },
-                modifier = Modifier
-                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = !loading)
-                    .fillMaxWidth(),
-                enabled = !loading
-            )
-            ExposedDropdownMenu(
-                expanded = generoMenu,
-                onDismissRequest = { generoMenu = false }
-            ) {
-                generos.forEach { g ->
-                    DropdownMenuItem(
-                        text = { Text(g) },
-                        onClick = {
-                            genero = g
-                            generoMenu = false
+                OutlinedTextField(
+                    value = edad,
+                    onValueChange = { if (it.all(Char::isDigit) && it.length <= 3) edad = it },
+                    label = { Text("Edad") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !loading
+                )
+                Spacer(Modifier.height(12.dp))
+
+                // Campo Género
+                ExposedDropdownMenuBox(
+                    expanded = generoMenu,
+                    onExpandedChange = { if (!loading) generoMenu = !generoMenu }
+                ) {
+                    OutlinedTextField(
+                        value = genero,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Género") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = generoMenu) },
+                        modifier = Modifier
+                            .menuAnchor(
+                                ExposedDropdownMenuAnchorType.PrimaryNotEditable,
+                                enabled = !loading
+                            )
+                            .fillMaxWidth(),
+                        enabled = !loading
+                    )
+                    ExposedDropdownMenu(
+                        expanded = generoMenu,
+                        onDismissRequest = { generoMenu = false }
+                    ) {
+                        generos.forEach { g ->
+                            DropdownMenuItem(
+                                text = { Text(g) },
+                                onClick = {
+                                    genero = g
+                                    generoMenu = false
+                                }
+                            )
                         }
+                    }
+                }
+                Spacer(Modifier.height(12.dp))
+
+                // Teléfono con lada
+                PhoneWithCountryField(
+                    telefono = telefono,
+                    onTelefono = { telefono = it },
+                    dialCode = dialCode,
+                    onDialCode = { dialCode = it },
+                    countriesVM = countriesVM,
+                    enabled = !loading
+                )
+                Spacer(Modifier.height(12.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(
+                        checked = aceptarPoliticas,
+                        onCheckedChange = { aceptarPoliticas = it },
+                        enabled = !loading
+                    )
+
+                    Text(
+                        buildAnnotatedString {
+                            append("Acepto ")
+                            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                                append("políticas de privacidad")
+                            }
+                        },
+                        modifier = Modifier.clickable { showPdf = true }
                     )
                 }
+
+
+                Spacer(Modifier.height(24.dp))
+
+                val habilitado =
+                    nombre.isNotBlank() &&
+                            apellido.isNotBlank() &&
+                            telefono.isNotBlank() &&
+                            edad.toIntOrNull() != null &&
+                            genero.isNotBlank() &&
+                            aceptarPoliticas
+
+                Button(
+                    onClick = {
+                        val fullPhone = dialCode + telefono
+                        val req = PreRegForm(
+                            first_name = nombre,
+                            last_name = apellido,
+                            phone_number = fullPhone,
+                            age = edad.toInt(),
+                            gender = genderCode,
+                            privacy_policy_accepted = aceptarPoliticas
+                        )
+                        generalViewModel.submitPreRegistro(req)
+                    },
+                    enabled = habilitado && !loading,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    if (loading) CircularProgressIndicator(Modifier.size(24.dp))
+                    else Text("Enviar Pre-registro")
+                }
+
+                Spacer(Modifier.height(8.dp))
+
+                when (ui) {
+                    is ResultState.Error ->
+                        Text(
+                            text = (ui as ResultState.Error).message,
+                            color = MaterialTheme.colorScheme.error
+                        )
+
+                    else -> {}
+                }
             }
-        }
-        Spacer(Modifier.height(12.dp))
 
-        // Teléfono con lada
-        PhoneWithCountryField(
-            telefono = telefono,
-            onTelefono = { telefono = it },
-            dialCode = dialCode,
-            onDialCode = { dialCode = it },
-            countriesVM = countriesVM,
-            enabled = !loading
-        )
-        Spacer(Modifier.height(12.dp))
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Checkbox(
-                checked = aceptarPoliticas,
-                onCheckedChange = { aceptarPoliticas = it },
-                enabled = !loading
-            )
-            Text("Acepto políticas de privacidad", style = MaterialTheme.typography.bodyLarge)
-        }
-        Spacer(Modifier.height(24.dp))
 
-        val habilitado =
-            nombre.isNotBlank() &&
-                    apellido.isNotBlank() &&
-                    telefono.isNotBlank() &&
-                    edad.toIntOrNull() != null &&
-                    genero.isNotBlank() &&
-                    aceptarPoliticas
 
-        Button(
-            onClick = {
-                val fullPhone = dialCode + telefono
-                val req = PreRegForm(
-                    first_name = nombre,
-                    last_name = apellido,
-                    phone_number = fullPhone,
-                    age = edad.toInt(),
-                    gender = genderCode,
-                    privacy_policy_accepted = aceptarPoliticas
-                )
-                generalViewModel.submitPreRegistro(req)
-            },
-            enabled = habilitado && !loading,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            if (loading) CircularProgressIndicator(Modifier.size(24.dp))
-            else Text("Enviar Pre-registro")
-        }
+            true -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        Text(
+                            text = AVISO_PRIVACIDAD,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
 
-        Spacer(Modifier.height(8.dp))
+                    Button(
+                        onClick = { showPdf = false },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp)
+                    ) {
+                        Text("Listo")
+                    }
+                }
+            }
+            /*
+            true -> {
+                // Show the PDF in the same screen
+                Column(modifier = Modifier.fillMaxSize()) {
+                    AndroidView(
+                        factory = { context ->
+                            WebView(context).apply {
+                                webViewClient = WebViewClient()
+                                settings.javaScriptEnabled = true
+                                loadUrl(
+                                    "http://20.246.91.21:8001/media/privacy_policies/AVISO_DE_PRIVACIDAD_2025.pdf"
+                                )
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f) // WebView takes all available vertical space
+                    )
 
-        when (ui) {
-            is ResultState.Error ->
-                Text(
-                    text = (ui as ResultState.Error).message,
-                    color = MaterialTheme.colorScheme.error
-                )
-            else -> {}
+                    Button(
+                        onClick = { showPdf = false },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    ) {
+                        Text("Cerrar PDF")
+                    }
+                }
+            }*/
+
+
         }
     }
 }
