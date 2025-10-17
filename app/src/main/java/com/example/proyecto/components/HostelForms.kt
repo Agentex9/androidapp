@@ -199,6 +199,13 @@ fun SubmitReservationButton(
         "%04d-%02d-%02d".format(it.year, it.monthValue, it.dayOfMonth)
     } ?: ""
 
+    val isFutureDate by remember(arrivalDate) {
+        mutableStateOf(
+            arrivalDate?.let { !it.isBefore(LocalDate.now()) } ?: false
+        )
+    }
+
+
 
     Button(
         onClick = {
@@ -214,7 +221,7 @@ fun SubmitReservationButton(
             onSubmit(request)  // ✅ pass back up
         },
         modifier = Modifier.fillMaxWidth(),
-        enabled = selectedHostel.isNotEmpty() && arrivalDate != null && (menCount + womenCount) > 0
+        enabled = selectedHostel.isNotEmpty() && arrivalDate != null && isFutureDate && (menCount + womenCount) > 0
                 && (reservationType != "individual" || (menCount + womenCount) == 1)
     ) {
         Text("Enviar Reservación")

@@ -54,7 +54,8 @@ fun App() {
             Screen.Login.route,
             Screen.Register.route,
             Screen.OTP.route,
-            Screen.Launcher.route
+            Screen.Launcher.route,
+            Screen.Privacy.route
             )
 
         Scaffold(
@@ -148,6 +149,7 @@ fun App() {
                         }
                     }
                 }
+
 
                 // ------------------ MENU PRINCIPAL ------------------
                 composable(Screen.Menu.route) {

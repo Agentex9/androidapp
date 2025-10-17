@@ -13,12 +13,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.proyecto.models.*
 import com.example.proyecto.ui.theme.Gotham
 
@@ -96,6 +100,20 @@ fun HostelCard(hostel: Hostel, onClick: (String) -> Unit) {
                     .padding(16.dp)
                     .fillMaxWidth()
             ) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(hostel.image_url) // <- your image URL
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = "${hostel.name} image",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp)
+                        .clip(RoundedCornerShape(12.dp)),
+                    contentScale = ContentScale.Crop
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
                 // Hostel name
                 Text(
                     text = hostel.name,
@@ -113,24 +131,6 @@ fun HostelCard(hostel: Hostel, onClick: (String) -> Unit) {
                     fontSize = 14.sp,
                     color = Color.Gray
                 )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Occupancy bar
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(16.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color(0xFFD1E0D7)) // pantone_621 (light gray background)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(occupancyRatio.coerceIn(0f, 1f))
-                            .fillMaxHeight()
-                            .background(occupancyColor)
-                    )
-                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -266,6 +266,7 @@ val sampleHostel = Hostel(
     phone = "+52 81 1234 5678",
     total_capacity = 50,
     updated_at = "2025-10-13T12:00:00Z",
-    women_capacity = 25
+    women_capacity = 25,
+    image_url = null
 )
 
