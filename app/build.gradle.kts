@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.androidx.ui.unit)
     implementation(libs.ads.mobile.sdk)
     implementation(libs.play.services.location)
+    implementation(libs.foundation)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

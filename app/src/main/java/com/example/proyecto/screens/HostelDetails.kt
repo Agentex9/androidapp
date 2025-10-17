@@ -7,17 +7,19 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
+import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -66,7 +68,7 @@ fun HostelDetailScreen(
                 title = { Text("Detalles del Albergue") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack , contentDescription = "Atrás")
                     }
                 }
             )
@@ -126,9 +128,9 @@ fun HostelDetailScreen(
                                 color = Color.Gray
                             )
 
-                            Divider(
-                                modifier = Modifier.padding(vertical = 8.dp),
-                                color = Color.Gray.copy(alpha = 0.3f)
+                            HorizontalDivider(
+                                modifier = Modifier.padding(vertical = 8.dp) ,
+                                thickness = DividerDefaults.Thickness , color = Color.Gray.copy(alpha = 0.3f)
                             )
 
                             // Occupancy Section
@@ -173,56 +175,70 @@ fun HostelDetailScreen(
                                 total = hostel.women_capacity
                             )
 
-                            Divider(
-                                modifier = Modifier.padding(vertical = 8.dp),
-                                color = Color.Gray.copy(alpha = 0.3f)
+                            HorizontalDivider(
+                                modifier = Modifier.padding(vertical = 8.dp) ,
+                                thickness = DividerDefaults.Thickness , color = Color.Gray.copy(alpha = 0.3f)
                             )
 
                             Text("Ubicación", fontWeight = FontWeight.Bold, fontSize = 18.sp)
 
-                            if (hostel.coordinates.size >= 2) {
-                                val latitude = hostel.coordinates[0].toDouble()
-                                val longitude = hostel.coordinates[1].toDouble()
-                                val hostelLocation = LatLng(latitude, longitude)
+                            // --- Dentro de tu bloque ResultState.Success ---
+                            if (!hostel.location_data.latitude.isNullOrBlank() &&
+                                !hostel.location_data.longitude.isNullOrBlank()
+                            ) {
+                                val latitude = hostel.location_data.latitude.toDoubleOrNull()
+                                val longitude = hostel.location_data.longitude.toDoubleOrNull()
 
-                                val cameraPositionState =
-                                    rememberCameraPositionState {
-                                    // Establece la posición inicial de la cámara en la ubicación del albergue
-                                    // con un nivel de zoom adecuado (ej. 14f para una vista de ciudad)
-                                    position = CameraPosition.fromLatLngZoom(hostelLocation, 14f)
-                                }
+                                if (latitude != null && longitude != null) {
+                                    val hostelLocation = LatLng(latitude, longitude)
+                                    val cameraPositionState = rememberCameraPositionState()
 
+                                    // 🔹 Actualiza la cámara cuando cambien las coordenadas del backend
+                                    LaunchedEffect(hostelLocation) {
+                                        cameraPositionState.position = CameraPosition.fromLatLngZoom(hostelLocation, 14f)
+                                    }
 
-                                GoogleMap(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(200.dp)
-                                        .clip(RoundedCornerShape(12.dp)),
-                                    cameraPositionState = cameraPositionState,
-                                    uiSettings = MapUiSettings(
-                                        scrollGesturesEnabled = false,
-                                        zoomGesturesEnabled = false,
-                                        rotationGesturesEnabled = false,
-                                        tiltGesturesEnabled = false,
-                                        compassEnabled = false,
-                                        mapToolbarEnabled = false
-                                    )
-                                ) {
-                                    // CORRECCIÓN: Usar remember para MarkerState
+                                    // 🔹 Recordar el MarkerState para evitar advertencias y recomposiciones
                                     val markerState = remember { MarkerState(position = hostelLocation) }
-                                    Marker(
-                                        state = markerState, // Usar la instancia recordada del estado
-                                        title = hostel.name,
-                                        snippet = hostel.location_data.address
+
+                                    GoogleMap(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(240.dp)
+                                            .clip(RoundedCornerShape(12.dp)),
+                                        cameraPositionState = cameraPositionState,
+                                        uiSettings = MapUiSettings(
+                                            scrollGesturesEnabled = true,
+                                            zoomGesturesEnabled = true,
+                                            rotationGesturesEnabled = true,
+                                            tiltGesturesEnabled = false,
+                                            compassEnabled = true,
+                                            mapToolbarEnabled = true
+                                        )
+                                    ) {
+                                        Marker(
+                                            state = markerState,
+                                            title = hostel.name,
+                                            snippet = hostel.location_data.address
+                                        )
+                                    }
+                                } else {
+                                    Text(
+                                        "Coordenadas inválidas o no disponibles.",
+                                        fontSize = 14.sp,
+                                        color = Color.Gray
                                     )
                                 }
                             } else {
                                 Text(
-                                    "Coordenadas de ubicación no disponibles para el mapa.",
+                                    "Ubicación no disponible desde el backend.",
                                     fontSize = 14.sp,
                                     color = Color.Gray
                                 )
                             }
+
+
+
 
                             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                                 Text("Dirección: ${hostel.location_data.address}", fontSize = 14.sp)

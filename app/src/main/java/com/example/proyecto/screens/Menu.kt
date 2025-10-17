@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.collectAsState
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
@@ -12,11 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,27 +24,11 @@ import com.example.proyecto.ViewModel.GeneralViewModel
 import com.example.proyecto.components.HostelCard
 import com.example.proyecto.components.ServiceCard
 import com.example.proyecto.data.ResultState
-import com.example.proyecto.models.Hostel
 import com.example.proyecto.models.HostelList
-import com.example.proyecto.models.HostelServices
 import com.example.proyecto.models.HostelServicesList
 import com.example.proyecto.ui.theme.Gotham
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.MarkerState
-import com.google.maps.android.compose.rememberCameraPositionState
-import android.Manifest
-import android.content.pm.PackageManager
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.runtime.*
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.ContextCompat
 import com.example.proyecto.components.HostelsMapView
 
 
@@ -56,7 +36,6 @@ import com.example.proyecto.components.HostelsMapView
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PreviewReservationScreenLayout(vm: GeneralViewModel = viewModel(),onClick: (String) -> Unit, onClick2: (String) -> Unit) {
-    val context = LocalContext.current
 
     // 🔹 Collect the states
     val hostelListState by vm.hostelListState.collectAsState()
@@ -175,7 +154,7 @@ fun PreviewReservationScreenLayout(vm: GeneralViewModel = viewModel(),onClick: (
                 Spacer(Modifier.height(24.dp))
 
                 // Map Section
-                HostelsMapView()
+                HostelsMapView(viewModel = vm)
             }
         }
     }
