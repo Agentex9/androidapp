@@ -115,7 +115,7 @@ fun App() {
                     PreRegistroScreen(
                         generalViewModel = generalViewModel,
                         onDone = {
-                            nav.navigate(Screen.OTP.route) {
+                            nav.navigate(Screen.Login.route) {
                                 popUpTo(Screen.Register.route) { inclusive = true }
                             }
                         },
