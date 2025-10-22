@@ -1,6 +1,12 @@
 import java.util.Properties
 import java.io.FileInputStream
 
+
+
+
+
+
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -122,5 +128,8 @@ dependencies {
     //coil
     implementation(libs.coil.compose)
 
+    implementation(libs.play.services.location)
+
+    implementation(libs.kotlinx.coroutines.play.services)
 
 }
