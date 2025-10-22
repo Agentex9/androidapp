@@ -148,7 +148,6 @@ fun ServiceDetailScreen(
                             Text("Horario", fontWeight = FontWeight.Bold, fontSize = 18.sp)
                             val schedule = service.schedule_data
                             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text("Día: ${schedule.day_name}", fontSize = 14.sp)
                                 Text("Disponible: ${if (schedule.is_available) "Sí" else "No"}", fontSize = 14.sp)
                                 Text("Inicio: ${schedule.start_time}", fontSize = 14.sp)
                                 Text("Fin: ${schedule.end_time}", fontSize = 14.sp)
